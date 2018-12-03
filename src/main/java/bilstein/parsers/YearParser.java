@@ -82,14 +82,14 @@ public class YearParser {
 
             //need to refresh driver in order to prevent it grow till no RAM available.
             rebootCounter = rebootCounter+carsParsed;
+            System.out.println("rebootCounter: " + rebootCounter);
             if (rebootCounter>300){
                 driver.close();
                 driver = SileniumUtil.initBaseDriver();
                 rebootCounter = 0;
             }
         }
-
-
+        driver.close();
     }
     public StartPoint getStartPoint() {
         return startPoint;
