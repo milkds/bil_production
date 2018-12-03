@@ -1,6 +1,7 @@
 package bilstein.parsers;
 
 import bilstein.BilsteinDao;
+import bilstein.NoSelectOptionAvailableException;
 import bilstein.SileniumUtil;
 import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
@@ -72,7 +73,12 @@ public class YearParser {
             ymKeeper.setMakeID(entry.getValue());
 
             MakeParser makeP = new MakeParser(driver, ymKeeper, startPoint);
-            int carsParsed = makeP.parseMake();
+            int carsParsed = 0;
+            try {
+                carsParsed = makeP.parseMake();
+            } catch (NoSelectOptionAvailableException ignored) {
+
+            }
 
             //need to refresh driver in order to prevent it grow till no RAM available.
             rebootCounter = rebootCounter+carsParsed;

@@ -1,5 +1,7 @@
 package bilstein;
 
+import bilstein.entities.preparse.AdditionalField;
+import bilstein.entities.preparse.PrepInfoKeeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -11,6 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -87,7 +90,6 @@ public class SileniumUtil {
                     break;
                 }
                 else {
-                    logger.error("Bilstein page is not available, retrying");
                     retries = 0;
                 }
             }
@@ -134,6 +136,7 @@ public class SileniumUtil {
             URLConnection con=url.openConnection();
             con.getInputStream();
         } catch (Exception e) {
+            logger.error("No connection available");
             return false;
         }
 
@@ -199,4 +202,114 @@ public class SileniumUtil {
         return new Select(drop);
     }
 
+    public static boolean getCarPage(WebDriver driver, String url) {
+        //todo: implement
+
+        return false;
+    }
+
+    public static List<WebElement> getSubModelEls(WebDriver driver, String year, String make, String model) {
+        getModelEls(driver, year, make);
+        Select select = getSelectByID(driver, "engineSelector-model");
+        select.selectByVisibleText(model);
+        waitForSelect(select);
+        select = getSelectByID(driver, "engineSelector-submodel");
+
+        return waitForSelect(select);
+    }
+
+    public static List<PrepInfoKeeper> getFinalSubs(WebDriver driver, PrepInfoKeeper keepr) throws NoSelectOptionAvailableException {
+        List<PrepInfoKeeper> finalSubs = new ArrayList<>();
+        String year = keepr.getYear();
+        String make = keepr.getMake();
+        String model = keepr.getModel();
+        String subModel = keepr.getSubModel();
+        getSubModelEls(driver, year, make, model);
+        Select select = getSelectByID(driver, "engineSelector-submodel");
+        select.selectByVisibleText(subModel);
+        if (buttonIsPresent(driver, keepr)){
+            PrepInfoKeeper newKeepr = new PrepInfoKeeper(keepr);
+            finalSubs.add(newKeepr);
+        }
+        else {
+            finalSubs = getSubsWithAdditionalDrops(driver, keepr);
+            for (PrepInfoKeeper keeper: finalSubs){
+                System.out.println(keeper);
+                System.exit(0);
+            }
+        }
+
+        return finalSubs;
+    }
+
+    /**
+     * This method is to be called only after we 100% sure that inlineDrop element is available
+     * @param driver - driver we select at least to submodel
+     * @param keepr - info keeper for submodel
+     * @return list of all available selects for this submodel.
+     */
+    private static List<PrepInfoKeeper> getSubsWithAdditionalDrops(WebDriver driver, PrepInfoKeeper keepr) throws NoSelectOptionAvailableException {
+        List<PrepInfoKeeper> subs = new ArrayList<>();
+        String drop = "inlineDrop-"+keepr.getDrop();
+        Select select = getSelectByID(driver, drop);
+        List<WebElement> dropEls = waitForSelect(select);
+        String fieldName = dropEls.get(0).getText();//first value in Drop List is a field name also
+        for (int i = 1; i < dropEls.size() ; i++) {
+            PrepInfoKeeper newKeepr = new PrepInfoKeeper(keepr);
+            select.selectByIndex(i);
+            AdditionalField field = getAdditionalField(dropEls.get(i), fieldName);
+            newKeepr.getFields().add(field);
+            if (buttonIsPresent(driver, newKeepr)){
+                subs.add(newKeepr);
+            }
+            else {
+                newKeepr.incrementDrop();
+                subs.addAll(getSubsWithAdditionalDrops(driver, newKeepr));
+            }
+        }
+
+        return subs;
+    }
+
+    private static AdditionalField getAdditionalField(WebElement element, String fieldName) {
+        String value = element.getText();
+        String id = element.getAttribute("value");
+
+        return new AdditionalField(fieldName, value, id);
+    }
+
+    private static boolean buttonIsPresent(WebDriver driver, PrepInfoKeeper keepr) throws NoSelectOptionAvailableException {
+        int retryCount = 0;
+        List<WebElement> buttnElForCheck = null;
+        List<WebElement> dropElForCheck = null;
+        while(true){
+            buttnElForCheck = driver.findElements(By.id("fyvCartBtn"));
+            dropElForCheck = driver.findElements(By.id("inlineDrop-"+keepr.getDrop()));
+            if (buttnElForCheck.size()!=0||dropElForCheck.size()!=0){
+                break;
+            }
+            else {
+                retryCount++;
+                sleepForTimeout(100);
+                if (retryCount>100){
+                    if (hasConnection()){
+                        logger.error("No Select option available for " + keepr);
+                       throw new NoSelectOptionAvailableException();
+                    }
+                    else {
+                        retryCount = 0;
+                    }
+                }
+            }
+        }
+        //if button element is found - than "find now" button is available.
+        return buttnElForCheck.size()>0;
+    }
+
+    private static void sleepForTimeout(int ms){
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {
+        }
+    }
 }

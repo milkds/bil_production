@@ -1,6 +1,7 @@
 package bilstein;
 
 import bilstein.entities.StartPoint;
+import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.entities.preparse.Ym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +27,8 @@ public class BilsteinUtil {
         return null;
     }
 
-    public static void saveYms(List<Ym> yms) {
-        //todo: continue here
+    public static String buildCarLink(PrepInfoKeeper keepr) {
+        //todo: implement
+        return null;
     }
 }

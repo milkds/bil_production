@@ -1,5 +1,8 @@
 package bilstein.entities.preparse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PrepInfoKeeper {
 
     private String year;
@@ -11,19 +14,27 @@ public class PrepInfoKeeper {
     private String subModel;
     private String subModelID;
 
+    private Integer drop = 0;
+    private List<AdditionalField> fields;
 
-    @Override
-    public String toString() {
-        return "PrepInfoKeeper{" +
-                "year='" + year + '\'' +
-                ", yearID='" + yearID + '\'' +
-                ", make='" + make + '\'' +
-                ", makeID='" + makeID + '\'' +
-                ", model='" + model + '\'' +
-                ", modelID='" + modelID + '\'' +
-                ", subModel='" + subModel + '\'' +
-                ", subModelID='" + subModelID + '\'' +
-                '}';
+    public PrepInfoKeeper() {
+        fields = new ArrayList<>();
+    }
+    public PrepInfoKeeper(PrepInfoKeeper anotherKeepr) {
+        this.year = anotherKeepr.getYear();
+        this.yearID = anotherKeepr.getYearID();
+        this.make = anotherKeepr.getMake();
+        this.makeID = anotherKeepr.getMakeID();
+        this.model = anotherKeepr.getModel();
+        this.modelID = anotherKeepr.getModelID();
+        this.subModel = anotherKeepr.getSubModel();
+        this.subModelID = anotherKeepr.getSubModelID();
+        fields = new ArrayList<>();
+        fields.addAll(anotherKeepr.getFields());
+    }
+
+    public void incrementDrop (){
+        drop++;
     }
 
     public String getYear() {
@@ -88,5 +99,34 @@ public class PrepInfoKeeper {
 
     public void setSubModelID(String subModelID) {
         this.subModelID = subModelID;
+    }
+
+    public Integer getDrop() {
+        return drop;
+    }
+
+    public void setDrop(Integer drop) {
+        this.drop = drop;
+    }
+
+    public List<AdditionalField> getFields() {
+        return fields;
+    }
+
+
+    @Override
+    public String toString() {
+        return "PrepInfoKeeper{" +
+                "year='" + year + '\'' +
+                ", yearID='" + yearID + '\'' +
+                ", make='" + make + '\'' +
+                ", makeID='" + makeID + '\'' +
+                ", model='" + model + '\'' +
+                ", modelID='" + modelID + '\'' +
+                ", subModel='" + subModel + '\'' +
+                ", subModelID='" + subModelID + '\'' +
+                ", drop=" + drop +
+                ", fields=" + fields +
+                '}';
     }
 }
