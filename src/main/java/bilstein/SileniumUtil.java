@@ -255,11 +255,11 @@ public class SileniumUtil {
             select.selectByIndex(i);
             AdditionalField field = getAdditionalField(dropEls.get(i), fieldName);
             newKeepr.getFields().add(field);
+            newKeepr.incrementDrop();
             if (buttonIsPresent(driver, newKeepr)){
                 subs.add(newKeepr);
             }
             else {
-                newKeepr.incrementDrop();
                 subs.addAll(getSubsWithAdditionalDrops(driver, newKeepr));
             }
         }

@@ -20,4 +20,16 @@ public class AdditionalField {
                 ", linkID='" + linkID + '\'' +
                 '}';
     }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public String getFieldValue() {
+        return fieldValue;
+    }
+
+    public String getLinkID() {
+        return linkID;
+    }
 }

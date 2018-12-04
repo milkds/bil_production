@@ -1,6 +1,7 @@
 package bilstein;
 
 
+import bilstein.entities.preparse.PrepInfoKeeper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,8 +15,6 @@ import org.openqa.selenium.support.ui.Select;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static jdk.nashorn.internal.objects.Global.print;
 
 public class TestClass {
 
@@ -104,5 +103,12 @@ public class TestClass {
         }
 
 
+    }
+
+    public static void testKeepr(){
+        PrepInfoKeeper keeper = new PrepInfoKeeper();
+        System.out.println(keeper.getDrop());
+        keeper.incrementDrop();
+        System.out.println(keeper.getDrop());
     }
 }

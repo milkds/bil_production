@@ -17,9 +17,9 @@ public class Controller {
     }
 
     public static void main(String[] args) {
-        //TestClass.testConnection();
+      //  TestClass.testKeepr();
        // TestClass.testFindNowButton();
-       new PreParseLauncher().launchPreParse();
+      // new PreParseLauncher().launchPreParse();
        new PreParseLauncher().launchPreParseForYears(2018, 2017);
     }
 
