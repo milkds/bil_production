@@ -233,10 +233,6 @@ public class SileniumUtil {
         }
         else {
             finalSubs = getSubsWithAdditionalDrops(driver, keepr);
-            for (PrepInfoKeeper keeper: finalSubs){
-                System.out.println(keeper);
-                System.exit(0);
-            }
         }
 
         return finalSubs;

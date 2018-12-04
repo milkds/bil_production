@@ -11,4 +11,13 @@ public class AdditionalField {
         this.fieldValue = fieldValue;
         this.linkID = linkID;
     }
+
+    @Override
+    public String toString() {
+        return "AdditionalField{" +
+                "fieldName='" + fieldName + '\'' +
+                ", fieldValue='" + fieldValue + '\'' +
+                ", linkID='" + linkID + '\'' +
+                '}';
+    }
 }

@@ -20,6 +20,7 @@ public class Controller {
         //TestClass.testConnection();
        // TestClass.testFindNowButton();
        new PreParseLauncher().launchPreParse();
+       new PreParseLauncher().launchPreParseForYears(2018, 2017);
     }
 
 
