@@ -23,7 +23,6 @@ public class SubModelParser extends ModelParser  {
         for  (PrepInfoKeeper keeper: completeSubs){
             if (keeper.getFields().size()>0){
                 System.out.println(keeper);
-                System.exit(0);
             }
         }
 

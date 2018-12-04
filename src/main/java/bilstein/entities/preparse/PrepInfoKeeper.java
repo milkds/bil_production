@@ -29,6 +29,7 @@ public class PrepInfoKeeper {
         this.modelID = anotherKeepr.getModelID();
         this.subModel = anotherKeepr.getSubModel();
         this.subModelID = anotherKeepr.getSubModelID();
+        this.drop = anotherKeepr.drop;
         fields = new ArrayList<>();
         fields.addAll(anotherKeepr.getFields());
     }
