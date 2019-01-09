@@ -1,15 +1,17 @@
 package bilstein;
 
 
+import bilstein.entities.Car;
+import bilstein.entities.Fitment;
+import bilstein.entities.Shock;
 import bilstein.entities.preparse.PrepInfoKeeper;
+import bilstein.entities.preparse.Ym;
+import org.hibernate.Session;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
 
 import java.io.IOException;
@@ -110,5 +112,158 @@ public class TestClass {
         System.out.println(keeper.getDrop());
         keeper.incrementDrop();
         System.out.println(keeper.getDrop());
+    }
+
+    public static void testShockPage(){
+        WebDriver driver = SileniumUtil.initBaseDriver();
+        driver.get("https://cart.bilsteinus.com/results?yearid=3431244765800985788&makeid=4050365326053705778&modelid=5583366737204764835&submodelid=5884575516905470520&Dr=2267534288709343027");
+        sleepForTimeout(5000);
+        List<WebElement> shocks = SileniumUtil.getShocks(driver);
+        for (WebElement element: shocks){
+            List<WebElement> pTag = element.findElements(By.tagName("p"));
+            for (WebElement innEl: pTag){
+               try{
+                   WebElement strEl = innEl.findElement(By.tagName("strong"));
+               }
+               catch (NoSuchElementException e){
+                  // System.out.println(innEl.getText());
+                   Fitment fitment = new Fitment();
+                   fitment.setPosition("Front");
+                   fitment.setNotes(innEl.getText());
+
+                   System.out.println(fitment);
+               }
+            }
+            WebElement headr = element.findElement(By.tagName("h4"));
+        }
+
+        driver.close();
+    }
+
+    private static void sleepForTimeout(int ms){
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    public static void testNotesString(){
+        String test = "Fitment{" +
+                "fitmentID=" + "123" +
+                ", carID=" + "321" +
+                ", position='" + "front" + '\'' +
+                ", notes='" + "-Without Electronic Suspension" + '\'' +
+                '}';
+
+        System.out.println(test);
+    }
+
+    public static void saveCarTest(){
+        Car car = new Car();
+        car.setModelYear(2015);
+        car.setMake("Ford");
+        car.setModel("F-150");
+        car.setSubModel("Lariat");
+        car.setDrive("4WD");
+
+        List<Fitment> fitments = new ArrayList<>();
+        Fitment fitment1 = new Fitment();
+        fitment1.setPosition("Front");
+        fitment1.setNotes("first test fitment Note");
+        Fitment fitment2 = new Fitment();
+        fitment2.setPosition("Rear");
+        fitment2.setNotes("second test fitment Note");
+
+        Shock shock1 = new Shock();
+        shock1.setSeries("7600");
+        shock1.setPartNo("Test Part 3");
+        shock1.setMainImgLink("www.leningrad.spb.ru");
+        shock1.setProductType("Shock");
+        shock1.setIncludesOutTieRods("Yes");
+        shock1.setGrossVehicleWeight("3 tonnes");
+        shock1.setSuspensionType("test suspension 1");
+        shock1.setRebound26("rebound 26");
+        shock1.setComp26("compression 26");
+        shock1.setRebound52("rebound 52");
+        shock1.setComp52("compression 52");
+        shock1.setOuterHousingDiameter("100");
+        shock1.setAppNote2("Application Note 2");
+        shock1.setAppNote1("Application Note 1");
+        shock1.setChassisYearRange("2001-2015");
+        shock1.setChassisClass("SuperClass");
+        shock1.setChassisModel("Best model");
+        shock1.setChassisModelExt("Best chassis model for Ford");
+        shock1.setChassisManufacturer("Ford");
+        shock1.setBodyDiameter("80");
+        shock1.setColLength("50");
+        shock1.setExtLength("60");
+
+        Shock shock2 = new Shock();
+        shock2.setSeries("8600");
+        shock2.setPartNo("Test Part 4");
+        shock2.setMainImgLink("www.olx.ua");
+        shock2.setProductType("Shock");
+        shock2.setIncludesOutTieRods("Yes");
+        shock2.setGrossVehicleWeight("3 tonnes");
+        shock2.setSuspensionType("test suspension 2");
+        shock2.setRebound26("rebound 26");
+        shock2.setComp26("compression 26");
+        shock2.setRebound52("rebound 52");
+        shock2.setComp52("compression 52");
+        shock2.setOuterHousingDiameter("100");
+        shock2.setAppNote2("Test Application Note 2");
+        shock2.setAppNote1("Test Application Note 1");
+        shock2.setChassisYearRange("2001-2015");
+        shock2.setChassisClass("SuperClass");
+        shock2.setChassisModelExt("Best chassis model for Ford");
+        shock2.setChassisManufacturer("Ford");
+        shock2.setBodyDiameter("80");
+        shock2.setColLength("50");
+        shock2.setExtLength("60");
+
+        fitment1.setShock(shock1);
+        fitment2.setShock(shock2);
+
+        fitments.add(fitment1);
+        fitments.add(fitment2);
+
+        car.setFitments(fitments);
+        car.setHasShocks(true);
+
+        List<Car> cars = new ArrayList<>();
+        cars.add(car);
+        BilsteinDao.saveCars(cars);
+
+        HibernateUtil.shutdown();
+    }
+
+    public static void saveYmsTest(){
+        List<Ym> yms = new ArrayList<>();
+        Ym ym0 = new Ym();
+        ym0.setYear(2012);
+        ym0.setMake("Ford");
+       /* Ym ym1 = new Ym();
+        ym1.setYear(2017);
+        ym1.setMake("Toyota");
+        Ym ym2 = new Ym();
+        ym2.setYear(2017);
+        ym2.setMake("Volkswagen");*/
+
+        yms.add(ym0);
+       /* yms.add(ym1);
+        yms.add(ym2);*/
+
+        BilsteinDao.saveYms(yms);
+        HibernateUtil.shutdown();
+    }
+
+    public static void testBoolSave(){
+        Ym ym = BilsteinDao.testMethod(2012, "Ford");
+        System.out.println(ym);
+        HibernateUtil.shutdown();
+    }
+
+    public static void testLaunch(int year, String make){
+        new PreParseLauncher().launchPreParseFromPauseTillEnd(year, make);
     }
 }

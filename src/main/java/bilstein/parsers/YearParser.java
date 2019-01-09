@@ -1,11 +1,14 @@
 package bilstein.parsers;
 
 import bilstein.BilsteinDao;
+import bilstein.BilsteinUtil;
 import bilstein.NoSelectOptionAvailableException;
 import bilstein.SileniumUtil;
 import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.entities.preparse.Ym;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -23,6 +26,8 @@ public class YearParser {
     private StartPoint startPoint;
     private PrepInfoKeeper keepr;
     private int rebootCounter;
+
+    private static final Logger logger = LogManager.getLogger(YearParser.class.getName());
 
 
     public YearParser(WebDriver driver, PrepInfoKeeper keeper, StartPoint startPoint) {
@@ -52,7 +57,9 @@ public class YearParser {
         //saving yms to base, for later check of consistency
         for (int i = 1; i <makeEls.size() ; i++) {
             String make = makeEls.get(i).getText();
-            Ym ym = new Ym(yearInt, make);
+            Ym ym = new Ym();
+            ym.setYear(yearInt);
+            ym.setMake(make);
             yms.add(ym);
         }
         BilsteinDao.saveYms(yms);
@@ -64,6 +71,7 @@ public class YearParser {
             startID = startPointID;
         }
 
+        //Selecting elements with Makes for current year from start point to finish.
         Map<String, String> makeMap = SileniumUtil.getElementMap(makeEls.subList(startID, makeEls.size()));
         for (Map.Entry<String, String> entry: makeMap.entrySet()){
             PrepInfoKeeper ymKeeper = new PrepInfoKeeper();
@@ -73,16 +81,28 @@ public class YearParser {
             ymKeeper.setMakeID(entry.getValue());
 
             MakeParser makeP = new MakeParser(driver, ymKeeper, startPoint);
+
+
             int carsParsed = 0;
             try {
                 carsParsed = makeP.parseMake();
+            } catch (NoSelectOptionAvailableException e) {
+               logger.error("Exception occurred while parsing "+ yearID + " " + ymKeeper.getMake() );
+            }
+
+           /* //test section - to be deleted in production
+            try {
+                if (makeP.getKeepr().getMake().equals("Audi")) {
+                    carsParsed = makeP.parseMake();
+                }
             } catch (NoSelectOptionAvailableException ignored) {
 
             }
+            ///////////////////////*/
+
 
             //need to refresh driver in order to prevent it grow till no RAM available.
             rebootCounter = rebootCounter+carsParsed;
-            System.out.println("rebootCounter: " + rebootCounter);
             if (rebootCounter>300){
                 driver.close();
                 driver = SileniumUtil.initBaseDriver();

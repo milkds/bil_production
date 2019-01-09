@@ -1,38 +1,54 @@
 package bilstein.entities;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
+@Table(name = "bil_cars")
 public class Car {
 
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer carID;
+
+    @Column(name = "MODEL_YEAR")
     private Integer modelYear;
+
+    @Column(name = "MAKE")
     private String make;
+
+    @Column(name = "MODEL")
     private String model;
+
+    @Column(name = "SUBMODEL")
     private String subModel;
 
-    @Column(name = "CAR_BODY")
+    @Column(name = "BODY")
     private String body;
 
-    @Column(name = "CAR_BODY_MANUFACTURER")
+    @Column(name = "BODY_MANUFACTURER")
     private String bodyMan;
 
-    @Column(name = "CAR_DRIVE")
+    @Column(name = "DRIVE")
     private String drive;
 
-    @Column(name = "CAR_DOORS")
+    @Column(name = "DOORS")
     private String doors;
 
-    @Column(name = "CAR_ENGINE")
+    @Column(name = "ENGINE")
     private String engine;
 
-    @Column(name = "CAR_SUSPENSION")
+    @Column(name = "SUSPENSION")
     private String suspension;
 
-    @Column(name = "CAR_TRANSMISSION")
+    @Column(name = "TRANSMISSION")
     private String transmission;
 
+    @Transient
     private Boolean hasShocks;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "car")
     private List<Fitment> fitments;
 
     @Override
@@ -52,6 +68,13 @@ public class Car {
                 '}';
     }
 
+
+    public Integer getCarID() {
+        return carID;
+    }
+    public void setCarID(Integer carID) {
+        this.carID = carID;
+    }
     public Integer getModelYear() {
         return modelYear;
     }
@@ -118,7 +141,7 @@ public class Car {
     public void setTransmission(String transmission) {
         this.transmission = transmission;
     }
-    public Boolean getHasShocks() {
+    public Boolean hasShocks() {
         return hasShocks;
     }
     public void setHasShocks(Boolean hasShocks) {

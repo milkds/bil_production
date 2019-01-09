@@ -20,11 +20,14 @@ public class SubModelParser extends ModelParser  {
 
     public List<PrepInfoKeeper> finishPreParse() throws NoSelectOptionAvailableException {
         List<PrepInfoKeeper> completeSubs = SileniumUtil.getFinalSubs(getDriver(), getKeepr());
+
+        //todo: delete this test part in prod;
         for  (PrepInfoKeeper keeper: completeSubs){
             if (keeper.getFields().size()>0){
                 System.out.println(keeper);
             }
         }
+        /////////////////////////////////////////////////
 
         return completeSubs;
     }

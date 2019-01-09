@@ -26,9 +26,14 @@ public class PreParseLauncher {
         launchPreParse(startPoint, yearStart, yearFinish);
     }
 
-    public void launchPreParseFromPauseTillYear(int yearFinish){
-        StartPoint startPoint = BilsteinUtil.getStartPoint();
+    public void launchPreParseFromPauseTillYear(int yearStart, int yearFinish, String make){
+        StartPoint startPoint = BilsteinUtil.getStartPoint(yearStart, make);
         launchPreParse(startPoint, 0, yearFinish);
+    }
+
+    public void launchPreParseFromPauseTillEnd(int yearStart, String make){
+        StartPoint startPoint = BilsteinUtil.getStartPoint(yearStart, make);
+        launchPreParse(startPoint, 0, 0);
     }
 
 
@@ -53,7 +58,7 @@ public class PreParseLauncher {
         }
 
         //getting Map year and year id for link.
-        Map<String, String> yearMap = SileniumUtil.getElementMap(yearEls.subList(startID,finishID));
+        Map<String, String> yearMap = SileniumUtil.getElementMap(yearEls.subList(startID,finishID+1));
         //reversing map to get years from 2k, otherwise it starts from 1896
         Map<String, String> sortedYearMap = new TreeMap<>(Collections.<String>reverseOrder());
         sortedYearMap.putAll(yearMap);
@@ -68,6 +73,7 @@ public class PreParseLauncher {
         }
 
         driver.close();
+        HibernateUtil.shutdown();
     }
 
     private static void codeDump(){

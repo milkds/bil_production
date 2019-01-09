@@ -5,6 +5,7 @@ import bilstein.entities.preparse.PrepInfoKeeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -203,9 +204,55 @@ public class SileniumUtil {
     }
 
     public static boolean getCarPage(WebDriver driver, String url) {
-        //todo: implement
+        driver.get(url);
+        By by = By.id("ProductResults");
+        WebElement prodResultElem = waitForElement(by,driver);
+        by = By.className("searchFeedback");
+        WebElement feedBackEl;
+        try {
+            feedBackEl = waitForElementFromElement(by, prodResultElem);
+        }
+        catch (NoSuchElementException e){
+            logger.error("cannot get results at car page " + url);
+            return false;
+        }
 
-        return false;
+        return !feedBackEl.getText().contains("No Results");
+    }
+
+    private static WebElement waitForElementFromElement(By by, WebElement searchedEl) {
+        WebElement result;
+        int retries = 0;
+        while (true){
+            try {
+                result = searchedEl.findElement(by);
+                break;
+            }
+            catch (NoSuchElementException e){
+                if (retries>600){
+                    if (hasConnection()){
+                        logger.error("No element in searched location.");
+                        throw new NoSuchElementException("No element in searched location.");
+                    }
+                    else {
+                        retries = 0;
+                    }
+                }
+                sleepForTimeout(100);
+                retries++;
+            }
+        }
+
+        return result;
+    }
+
+    public static List<WebElement> getShocks(WebDriver driver) {
+        List<WebElement> shockEls;
+        WebElement resultsBlockEl = driver.findElement(By.id("ProductResults"));
+        WebElement resultsContainer = resultsBlockEl.findElement(By.className("searchList"));
+        shockEls = resultsContainer.findElements(By.cssSelector("div[class='row backBox']"));
+
+        return shockEls;
     }
 
     public static List<WebElement> getSubModelEls(WebDriver driver, String year, String make, String model) {
@@ -308,4 +355,6 @@ public class SileniumUtil {
         } catch (InterruptedException ignored) {
         }
     }
+
+
 }

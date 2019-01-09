@@ -3,8 +3,6 @@ package bilstein.entities;
 public class StartPoint {
    private int yearID;
    private int makeID;
-   private int modelID;
-   private int subModelID;
 
     public int getYearID() {
         return yearID;
@@ -22,19 +20,4 @@ public class StartPoint {
         this.makeID = makeID;
     }
 
-    public int getModelID() {
-        return modelID;
-    }
-
-    public void setModelID(int modelID) {
-        this.modelID = modelID;
-    }
-
-    public int getSubModelID() {
-        return subModelID;
-    }
-
-    public void setSubModelID(int subModelID) {
-        this.subModelID = subModelID;
-    }
 }

@@ -4,6 +4,8 @@ package bilstein;
 import bilstein.entities.Car;
 import bilstein.entities.Fitment;
 import bilstein.entities.Shock;
+import bilstein.entities.preparse.Y;
+import bilstein.entities.preparse.Ym;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -26,7 +28,7 @@ public class HibernateUtil {
 
                 Map<String, String> settings = new HashMap<>();
                 settings.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-                settings.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/bilstein_parse?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+                settings.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/bilstein_prod?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
                 settings.put("hibernate.connection.username", "root");
                 settings.put("hibernate.connection.password", "root");
                 settings.put("hibernate.show_sql", "true");
@@ -40,6 +42,8 @@ public class HibernateUtil {
                 sources.addAnnotatedClass(Car.class);
                 sources.addAnnotatedClass(Fitment.class);
                 sources.addAnnotatedClass(Shock.class);
+                sources.addAnnotatedClass(Y.class);
+                sources.addAnnotatedClass(Ym.class);
 
                 Metadata metadata = sources.getMetadataBuilder().build();
 

@@ -17,7 +17,6 @@ public class ModelParser extends MakeParser {
 
     private String model;
     private String modelID;
-    private List<Ymms> subsToSave;
 
     public ModelParser(WebDriver driver, PrepInfoKeeper keeper, StartPoint startPoint) {
         super(driver, keeper, startPoint);
@@ -25,25 +24,10 @@ public class ModelParser extends MakeParser {
         this.modelID = keeper.getModelID();
     }
 
-    public List<PrepInfoKeeper> parseSubModels() throws NoSelectOptionAvailableException {
+    public List<PrepInfoKeeper> parseModel() throws NoSelectOptionAvailableException {
         List<WebElement> subModelEls = SileniumUtil.getSubModelEls(getDriver(), getYear(), getMake(), model);
-        List<Ymms>ymmses = new ArrayList<>();
-        int yearInt = Integer.parseInt(getYear());
-        for (int i = 1; i < subModelEls.size(); i++) {
-            String subModel = subModelEls.get(i).getText();
-            Ymms ymms = new Ymms(yearInt, getMake(), model, subModel);
-            ymmses.add(ymms);
-        }
-       // BilsteinDao.saveYmmses(ymmses);
-        subsToSave = ymmses;
-
         int startID = 1;
-        int startPointID = getStartPoint().getSubModelID();
-        if (startPointID!=0){
-            startID = startPointID;
-        }
         Map<String, String> subModelMap = SileniumUtil.getElementMap(subModelEls.subList(startID, subModelEls.size()));
-
         List<PrepInfoKeeper> carsToParse = new ArrayList<>();
         for (Map.Entry<String, String> entry: subModelMap.entrySet()){
             PrepInfoKeeper ymmKeepr = new PrepInfoKeeper();
@@ -59,9 +43,5 @@ public class ModelParser extends MakeParser {
         }
 
         return carsToParse;
-    }
-
-    public List<Ymms> getSubsToSave() {
-        return subsToSave;
     }
 }

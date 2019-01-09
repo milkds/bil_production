@@ -6,8 +6,6 @@ import bilstein.SileniumUtil;
 import bilstein.entities.Car;
 import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
-import bilstein.entities.preparse.Ymm;
-import bilstein.entities.preparse.Ymms;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -27,24 +25,9 @@ public class MakeParser extends YearParser {
 
     public int parseMake() throws NoSelectOptionAvailableException {
         List<WebElement> modelEls = SileniumUtil.getModelEls(getDriver(), getYear(), make);
-        List<Ymm> ymms = new ArrayList<>();
-        int yearInt = Integer.parseInt(getYear());
-        for (int i = 1; i <modelEls.size() ; i++) {
-            String model = modelEls.get(i).getText();
-            Ymm ymm = new Ymm(yearInt, make, model);
-            ymms.add(ymm);
-        }
-        BilsteinDao.saveYmms(ymms);
-
         int startID = 1;
-        int startPointID = getStartPoint().getModelID();
-        if (startPointID!=0){
-            startID = startPointID;
-        }
-
         List<PrepInfoKeeper> carsToParse = new ArrayList<>();
-        List<Ymms> subsToSave = new ArrayList<>();
-        //todo: develop possibility of parsing single model
+        //todo: develop possibility of parsing single make
         Map<String, String> modelMap = SileniumUtil.getElementMap(modelEls.subList(startID, modelEls.size()));
         for (Map.Entry<String, String> entry: modelMap.entrySet()){
             PrepInfoKeeper ymmKeepr = new PrepInfoKeeper();
@@ -56,16 +39,25 @@ public class MakeParser extends YearParser {
             ymmKeepr.setModelID(entry.getValue());
 
             ModelParser modelParser = new ModelParser(getDriver(), ymmKeepr, getStartPoint());
-            carsToParse.addAll(modelParser.parseSubModels());
-            subsToSave.addAll(modelParser.getSubsToSave()); //this needed to make sure we save info about subs only when all models parsed.
+            carsToParse.addAll(modelParser.parseModel());
         }
         List<Car> parsedCars = new ArrayList<>();
 
+        //
         for (PrepInfoKeeper keepr: carsToParse){
             parsedCars.add(new CarParser().parseCar(getDriver(), keepr));
         }
 
-        BilsteinDao.saveCars(parsedCars, subsToSave);
+        //test section - to be deleted in prod.
+        for (Car car: parsedCars){
+            if (car.hasShocks()){
+                car.getFitments().forEach(System.out::println);
+            }
+        }
+        //////////////////
+
+        //this method also marks current year+make combo as parsed
+        BilsteinDao.saveCars(parsedCars);
 
         return parsedCars.size();
     }
