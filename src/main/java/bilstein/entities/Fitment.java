@@ -25,6 +25,16 @@ public class Fitment {
     @JoinColumn(name = "SHOCK_PART", referencedColumnName = "PART_NO")
     private Shock shock;
 
+    @Override
+    public String toString() {
+        return "Fitment{" +
+                "fitmentID=" + fitmentID +
+                ", car=" + car +
+                ", position='" + position + '\'' +
+                ", notes='" + notes + '\'' +
+                ", shock=" + shock +
+                '}';
+    }
 
     public void setShock(Shock shock) {
         this.shock = shock;

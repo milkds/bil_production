@@ -17,7 +17,7 @@ public class ConsistencyChecker {
     private static final Logger logger = LogManager.getLogger(ConsistencyChecker.class.getName());
 
     public static void check(int firstYear, int lastYear){
-        for (int i = firstYear; i < lastYear; i--) {
+        for (int i = firstYear; i > lastYear; i--) {
             List<Ym> parsedCars = BilsteinDao.getYmsByYear(i);
             if (parsedCars.size()==0){
                 logger.info("No cars parsed for year " + i);
@@ -38,7 +38,7 @@ public class ConsistencyChecker {
             List<Ym> parsedCars = BilsteinDao.getYmsByYear(i);
             if (parsedCars.size()==0){
                 logger.info("No cars parsed for year " + i);
-                new PreParseLauncher().launchPreParseForYears(i , i);
+                new PreParseLauncher().launchPreParseForYears(i , i-1);
             }
             else {
                 for (Ym ym: parsedCars){
@@ -49,7 +49,6 @@ public class ConsistencyChecker {
                 }
             }
         }
-        HibernateUtil.shutdown();
     }
 
     private static void reparseMake(Ym ym) throws NoSelectOptionAvailableException {
@@ -70,5 +69,6 @@ public class ConsistencyChecker {
         StartPoint startPoint = new StartPoint();
 
         new MakeParser(driver, ymKeepr, startPoint).parseMake();
+        driver.close();
     }
 }

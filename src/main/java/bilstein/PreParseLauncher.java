@@ -73,7 +73,6 @@ public class PreParseLauncher {
         }
 
         driver.close();
-        HibernateUtil.shutdown();
     }
 
     private static void codeDump(){

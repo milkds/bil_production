@@ -34,7 +34,6 @@ public class BilsteinDao {
             }
             transaction.commit();
             session.close();
-            logger.info("Cars successfully saved ");
         } catch (Exception e) {
             e.printStackTrace();
             if (transaction != null) {
@@ -128,14 +127,12 @@ public class BilsteinDao {
 
     public static void saveCars(List<Car> parsedCars) {
         new Thread(() -> {
-            for (Car car: parsedCars){
                 try {
                     saveCarsPr(parsedCars);
                 } catch (NoSelectOptionAvailableException e) {
-                  logger.info("Error while saving car " + car);
+                    logger.info("Error while saving " + parsedCars.get(0).getModelYear() + " " + parsedCars.get(0).getMake()  );
                   return;
                 }
-            }
             Car baseCar = parsedCars.get(0);
             setYearMakeParsed(baseCar);
         }).run();
