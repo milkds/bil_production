@@ -6,10 +6,7 @@ import bilstein.parsers.YearParser;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class PreParseLauncher {
 
@@ -58,7 +55,7 @@ public class PreParseLauncher {
         }
 
         //getting Map year and year id for link.
-        Map<String, String> yearMap = SileniumUtil.getElementMap(yearEls.subList(startID,finishID+1));
+        Map<String, String> yearMap = SileniumUtil.getElementMap(yearEls.subList(startID,finishID));
         //reversing map to get years from 2k, otherwise it starts from 1896
         Map<String, String> sortedYearMap = new TreeMap<>(Collections.<String>reverseOrder());
         sortedYearMap.putAll(yearMap);

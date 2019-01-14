@@ -23,9 +23,13 @@ public class ConsistencyChecker {
                 logger.info("No cars parsed for year " + i);
             }
             else {
+                logger.info("year parsed: " + i);
                 for (Ym ym: parsedCars){
                     if (!ym.getMakeParsed()){
                         logger.info("Make not parsed: " + i + " " + ym.getMake());
+                    }
+                    else {
+                        logger.info("Parsed make: " + i + " " + ym.getMake());
                     }
                 }
             }
