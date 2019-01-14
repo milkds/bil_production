@@ -23,21 +23,18 @@ public class ConsistencyChecker {
                 logger.info("No cars parsed for year " + i);
             }
             else {
-                logger.info("year parsed: " + i);
                 for (Ym ym: parsedCars){
                     if (!ym.getMakeParsed()){
                         logger.info("Make not parsed: " + i + " " + ym.getMake());
                     }
-                    else {
-                        logger.info("Parsed make: " + i + " " + ym.getMake());
-                    }
                 }
             }
         }
+        HibernateUtil.shutdown();
     }
 
     public static void checkAndReparse(int firstYear, int lastYear) throws NoSelectOptionAvailableException {
-        for (int i = firstYear; i < lastYear; i--) {
+        for (int i = firstYear; i > lastYear; i--) {
             List<Ym> parsedCars = BilsteinDao.getYmsByYear(i);
             if (parsedCars.size()==0){
                 logger.info("No cars parsed for year " + i);
@@ -52,6 +49,7 @@ public class ConsistencyChecker {
                 }
             }
         }
+        HibernateUtil.shutdown();
     }
 
     private static void reparseMake(Ym ym) throws NoSelectOptionAvailableException {

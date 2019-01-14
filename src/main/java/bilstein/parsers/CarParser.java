@@ -94,9 +94,14 @@ public class CarParser {
     private void setItemType(Shock shock, WebElement shockEl) {
         WebElement headerEl = shockEl.findElement(By.tagName("h4"));
         String typeLine = headerEl.getText();
-        typeLine = typeLine.replace(shock.getSeries(), "");
-        typeLine = typeLine.replace("-", "");
-        shock.setProductType(typeLine.trim());
+        String type = typeLine.replace(shock.getSeries(), "");
+        type = type.replace("-", "");
+        if (type.length()==0){
+            if (typeLine.contains("Steering Damper")){
+                type="Steering Damper";
+            }
+        }
+        shock.setProductType(type.trim());
     }
 
     private void setAttribute(Fitment fitment, String attName, WebElement attribute) {

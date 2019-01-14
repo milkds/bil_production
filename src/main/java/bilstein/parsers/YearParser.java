@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,7 @@ public class YearParser {
     }
 
     public void parse() {
+        Instant start = Instant.now();
         List<WebElement> makeEls = SileniumUtil.getMakeEls(driver, year);
         List<Ym> yms = new ArrayList<>();
         int yearInt = Integer.parseInt(year);
@@ -100,7 +103,6 @@ public class YearParser {
             }
             ///////////////////////*/
 
-
             //need to refresh driver in order to prevent it grow till no RAM available.
             rebootCounter = rebootCounter+carsParsed;
             if (rebootCounter>300){
@@ -109,7 +111,11 @@ public class YearParser {
                 rebootCounter = 0;
             }
         }
+
         driver.close();
+
+        Instant finish = Instant.now();
+        logger.info("Year " + year + " parsed in " + Duration.between(start, finish).toMinutes()+ " minutes");
     }
     public StartPoint getStartPoint() {
         return startPoint;

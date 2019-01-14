@@ -66,6 +66,9 @@ public class PreParseLauncher {
             keepr.setYearID(entry.getValue());
             YearParser yearParser = new YearParser(driver, keepr, startPoint);
             yearParser.parse();
+            if (startPoint.getMakeID()!=1){
+                startPoint.setMakeID(1);
+            }
             driver = SileniumUtil.initBaseDriver();
         }
 
