@@ -9,7 +9,7 @@ public class Controller {
            // new PreParseLauncher().launchPreParseForYears(2018, 2017);
          //   new PreParseLauncher().launchPreParseFromPauseTillEnd(1945, "Alfa Romeo");
            // new PreParseLauncher().launchPreParseFromPauseTillYear(2018, 2000, "Ford");
-        ConsistencyChecker.checkAndReparse(2019, 1900);
+        ConsistencyChecker.checkAndReparse(2018, 1900);
         HibernateUtil.shutdown();
     }
 

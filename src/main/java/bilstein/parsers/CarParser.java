@@ -24,6 +24,7 @@ public class CarParser {
     public Car parseCar(WebDriver driver, PrepInfoKeeper keepr){
         Car car = this.getBasicCar(keepr);
         String url = BilsteinUtil.buildCarLink(keepr);
+        logger.info("parsing car " + url);
         boolean hasShocks = SileniumUtil.getCarPage(driver, url);
         if (hasShocks){
            car.setHasShocks(true);
