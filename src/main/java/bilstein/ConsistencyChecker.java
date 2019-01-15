@@ -10,8 +10,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ConsistencyChecker {
     private static final Logger logger = LogManager.getLogger(ConsistencyChecker.class.getName());
@@ -58,17 +60,34 @@ public class ConsistencyChecker {
 
         List<WebElement> yearEls = SileniumUtil.getYearElements(driver);
         List<WebElement> makeEls = SileniumUtil.getMakeEls(driver, yearStr);
+
         int yearID = SileniumUtil.getElementID(yearEls, yearStr);
+        Map<String, String> yearMap = SileniumUtil.getElementMap(yearEls.subList(yearID,yearID+1));
+        //reversing map to get years from 2k, otherwise it starts from 1896
+        Map<String, String> sortedYearMap = new TreeMap<>(Collections.<String>reverseOrder());
+        sortedYearMap.putAll(yearMap);
+        PrepInfoKeeper keepr=null;
+        for (Map.Entry<String, String> entry: sortedYearMap.entrySet()){
+            keepr = new PrepInfoKeeper();
+            keepr.setYear(entry.getKey());
+            keepr.setYearID(entry.getValue());
+        }
         int makeID = SileniumUtil.getElementID(makeEls, ym.getMake());
-        PrepInfoKeeper ymKeepr = new PrepInfoKeeper();
+        Map<String, String> makeMap = SileniumUtil.getElementMap(makeEls.subList(makeID, makeID+1));
+        for (Map.Entry<String, String> entry: makeMap.entrySet()){
+            keepr.setMake(entry.getKey());
+            keepr.setMakeID(entry.getValue());
+        }
+
+        /*PrepInfoKeeper ymKeepr = new PrepInfoKeeper();
         ymKeepr.setYear(yearStr);
         ymKeepr.setYearID(yearID+"");
         ymKeepr.setMake(ym.getMake());
-        ymKeepr.setMakeID(makeID+"");
+        ymKeepr.setMakeID(makeID+"");*/
 
         StartPoint startPoint = new StartPoint();
 
-        new MakeParser(driver, ymKeepr, startPoint).parseMake();
+        new MakeParser(driver, keepr, startPoint).parseMake();
         driver.close();
     }
 }

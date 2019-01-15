@@ -60,6 +60,7 @@ public class PreParseLauncher {
         Map<String, String> sortedYearMap = new TreeMap<>(Collections.<String>reverseOrder());
         sortedYearMap.putAll(yearMap);
 
+
         for (Map.Entry<String, String> entry: sortedYearMap.entrySet()){
             PrepInfoKeeper keepr = new PrepInfoKeeper();
             keepr.setYear(entry.getKey());
