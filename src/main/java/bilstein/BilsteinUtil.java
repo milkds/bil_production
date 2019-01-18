@@ -1,5 +1,6 @@
 package bilstein;
 
+import bilstein.entities.Shock;
 import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.AdditionalField;
 import bilstein.entities.preparse.PrepInfoKeeper;
@@ -70,5 +71,17 @@ public class BilsteinUtil {
         }
 
         return linkBuilder.toString();
+    }
+
+
+    public static void fillAdditionalFields(Shock shock, Shock detailedShock) {
+        shock.setDetailsParsed(true);
+        shock.setImgLinks(detailedShock.getImgLinks());
+        shock.setProductDesc(detailedShock.getProductDesc());
+        shock.setBuyersGuide(detailedShock.getBuyersGuide());
+        shock.setDocLinks(detailedShock.getDocLinks());
+        shock.setSpecs(detailedShock.getSpecs());
+        shock.setDetails(detailedShock.getDetails());
+        shock.setpInfos(detailedShock.getpInfos());
     }
 }

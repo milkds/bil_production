@@ -6,12 +6,14 @@ import bilstein.entities.Fitment;
 import bilstein.entities.Shock;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.entities.preparse.Ym;
-import org.hibernate.Session;
+import bilstein.parsers.ShockParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 
 import java.io.IOException;
@@ -264,6 +266,20 @@ public class TestClass {
     }
 
     public static void testLaunch(int year, String make){
-        new PreParseLauncher().launchPreParseFromPauseTillEnd(year, make);
+        new ParseLauncher().launchPreParseFromPauseTillEnd(year, make);
+    }
+
+    public static void proxyTest(){
+        System.setProperty("webdriver.chrome.driver", "src\\main\\resources\\chromedriver.exe");
+        ChromeOptions options = new ChromeOptions().addArguments("--proxy-server=http://" + "65.49.137.16:46386");
+        WebDriver driver = new ChromeDriver(options);
+        driver.get("https://superlift.com/");
+    }
+
+    public static void shockParse(){
+        WebDriver driver = SileniumUtil.initBaseDriver();
+        driver = SileniumUtil.getShockPage(driver, "24-188227");
+        Shock detailedShock = new ShockParser(driver, new Shock()).parse();
+        driver.close();
     }
 }

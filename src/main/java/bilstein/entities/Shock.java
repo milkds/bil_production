@@ -1,6 +1,9 @@
 package bilstein.entities;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "bil_shocks")
@@ -80,6 +83,30 @@ public class Shock {
     @Column(name = "INCL_OUT_TIE_RODS")
     private String includesOutTieRods;
 
+    @Column(name="DETAILS_PARSED")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean detailsParsed;
+
+    @Column(name = "IMG_LINKS")
+    private String imgLinks;
+
+    @Column(name = "PRODUCT_DESC")
+    private String productDesc;
+
+    @Column(name = "BUYERS_GUIDE")
+    private String buyersGuide;
+
+    @Column(name = "DOC_LINKS")
+    private String docLinks;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
+    private List<Spec> specs;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
+    private List<Detail> details;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
+    private List<ProductInfo> pInfos;
 
     @Override
     public String toString() {
@@ -254,5 +281,56 @@ public class Shock {
     }
     public void setIncludesOutTieRods(String includesOutTieRods) {
         this.includesOutTieRods = includesOutTieRods;
+    }
+    public boolean detailsParsed() {
+        return detailsParsed;
+    }
+    public void setDetailsParsed(boolean detailsParsed) {
+        this.detailsParsed = detailsParsed;
+    }
+    public String getImgLinks() {
+        return imgLinks;
+    }
+    public void setImgLinks(String imgLinks) {
+        this.imgLinks = imgLinks;
+    }
+    public boolean isDetailsParsed() {
+        return detailsParsed;
+    }
+    public String getProductDesc() {
+        return productDesc;
+    }
+    public void setProductDesc(String productDesc) {
+        this.productDesc = productDesc;
+    }
+    public String getBuyersGuide() {
+        return buyersGuide;
+    }
+    public void setBuyersGuide(String buyersGuide) {
+        this.buyersGuide = buyersGuide;
+    }
+    public String getDocLinks() {
+        return docLinks;
+    }
+    public void setDocLinks(String docLinks) {
+        this.docLinks = docLinks;
+    }
+    public List<Spec> getSpecs() {
+        return specs;
+    }
+    public void setSpecs(List<Spec> specs) {
+        this.specs = specs;
+    }
+    public List<Detail> getDetails() {
+        return details;
+    }
+    public void setDetails(List<Detail> details) {
+        this.details = details;
+    }
+    public List<ProductInfo> getpInfos() {
+        return pInfos;
+    }
+    public void setpInfos(List<ProductInfo> pInfos) {
+        this.pInfos = pInfos;
     }
 }

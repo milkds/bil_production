@@ -4,7 +4,6 @@ import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.entities.preparse.Ym;
 import bilstein.parsers.MakeParser;
-import bilstein.parsers.YearParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -40,7 +39,7 @@ public class ConsistencyChecker {
             List<Ym> parsedCars = BilsteinDao.getYmsByYear(i);
             if (parsedCars.size()==0){
                 logger.info("No cars parsed for year " + i);
-                new PreParseLauncher().launchPreParseForYears(i , i-1);
+                new ParseLauncher().launchPreParseForYears(i , i-1);
             }
             else {
                 for (Ym ym: parsedCars){

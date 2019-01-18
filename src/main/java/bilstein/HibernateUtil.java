@@ -1,9 +1,7 @@
 package bilstein;
 
 
-import bilstein.entities.Car;
-import bilstein.entities.Fitment;
-import bilstein.entities.Shock;
+import bilstein.entities.*;
 import bilstein.entities.preparse.Y;
 import bilstein.entities.preparse.Ym;
 import org.hibernate.Session;
@@ -44,6 +42,9 @@ public class HibernateUtil {
                 sources.addAnnotatedClass(Shock.class);
                 sources.addAnnotatedClass(Y.class);
                 sources.addAnnotatedClass(Ym.class);
+                sources.addAnnotatedClass(Spec.class);
+                sources.addAnnotatedClass(Detail.class);
+                sources.addAnnotatedClass(ProductInfo.class);
 
                 Metadata metadata = sources.getMetadataBuilder().build();
 

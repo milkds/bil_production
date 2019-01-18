@@ -1,14 +1,17 @@
 package bilstein;
 
+import bilstein.entities.Shock;
 import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
+import bilstein.parsers.ShockParser;
 import bilstein.parsers.YearParser;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.*;
 
-public class PreParseLauncher {
+public class ParseLauncher {
 
     /**
      * Launches PreParse from the beginning.
@@ -32,7 +35,6 @@ public class PreParseLauncher {
         StartPoint startPoint = BilsteinUtil.getStartPoint(yearStart, make);
         launchPreParse(startPoint, 0, 0);
     }
-
 
     private void launchPreParse(StartPoint startPoint, int yearStart, int yearFinish) {
         WebDriver driver = SileniumUtil.initBaseDriver();
@@ -76,36 +78,23 @@ public class PreParseLauncher {
         driver.close();
     }
 
-    private static void codeDump(){
-
-        /*Select yearSelect = BilsteinUtil.getYearSelect(driver);
-        List<WebElement> yearEls = BilsteinUtil.waitForSelect(yearSelect);
-
-        int startID = startPoint.getYearID();
-        if (startID==0){
-            if (yearStart==0){
-                startID = 1;
+    public void parseShockDetails(){
+        WebDriver driver = SileniumUtil.initBaseDriver();
+        List<Shock> shocks = BilsteinDao.getRawShocks();
+        for (Shock shock: shocks){
+            driver = SileniumUtil.getShockPage(driver, shock.getPartNo());
+            Shock detailedShock = null;
+            while (true){
+                try {
+                    detailedShock = new ShockParser(driver, shock).parse();
+                    break;
+                }
+                catch (StaleElementReferenceException e){
+                }
             }
-            else {
-                String yStartStr = yearStart+"";
-                startID = BilsteinUtil.getElementID(yearEls, yStartStr);
-            }
+            BilsteinDao.updateShock(detailedShock);
         }
-        int finishID = yearEls.size();
-        if (yearFinish!=0){
-            String yFinishStr = yearFinish+"";
-            finishID = BilsteinUtil.getElementID(yearEls, yFinishStr);
-        }
-
-
-        //todo: Rethink this - we will need Select for each year.
-        for (int i = startID; i <finishID ; i++) {
-            Integer curYear = Integer.parseInt(yearEls.get(i).getText());
-            Y y = new Y(driver, curYear);
-            y.setStartPoint(startPoint);
-            yearSelect.selectByIndex(i);
-            y.parse();
-        }*/
-
+        driver.close();
+        HibernateUtil.shutdown();
     }
 }

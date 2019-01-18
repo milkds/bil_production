@@ -1,8 +1,6 @@
 package bilstein;
 
-import bilstein.entities.Car;
-import bilstein.entities.Fitment;
-import bilstein.entities.Shock;
+import bilstein.entities.*;
 import bilstein.entities.preparse.Ym;
 import bilstein.entities.preparse.Ymm;
 import bilstein.entities.preparse.Ymms;
@@ -97,7 +95,7 @@ public class BilsteinDao {
             logger.info("Yms exist for year " + basicYm.getYear());
         }
     }
-
+    
     private static boolean yMexists(Ym ym, Session session) {
         String query = "select count(make) from Ym where year = "+ym.getYear()+" and make = '"+ym.getMake()+"'";
         Long count = (Long) session.createQuery( query ).getSingleResult();
@@ -193,5 +191,63 @@ public class BilsteinDao {
         yms = q.getResultList();
 
         return yms;
+    }
+
+    public static List<Shock> getRawShocks() {
+        Session session = HibernateUtil.getSession();
+        List<Shock> shocks;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
+        Root<Shock> root = crQ.from(Shock.class);
+        crQ.where(builder.equal(root.get("detailsParsed"), false));
+        Query q = session.createQuery(crQ);
+        shocks = q.getResultList();
+
+        return shocks;
+    }
+
+    public static void updateShock(Shock detailedShock) {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            Shock shock = getShockByID(detailedShock.getShockID(), session);
+            BilsteinUtil.fillAdditionalFields(shock, detailedShock);
+            List<Spec> specs = shock.getSpecs();
+            for (Spec spec: specs){
+                session.persist(spec);
+            }
+            List<Detail> details = shock.getDetails();
+            for (Detail detail: details){
+                session.persist(detail);
+            }
+            List<ProductInfo> pInfos = shock.getpInfos();
+            for (ProductInfo productInfo: pInfos){
+                session.persist(productInfo);
+            }
+            session.update(shock);
+            transaction.commit();
+            session.close();
+            logger.info("Updated shock # " + detailedShock.getPartNo());
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+
+    }
+
+    private static Shock getShockByID(Integer shockID, Session session) {
+        Shock shock;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
+        Root<Shock> root = crQ.from(Shock.class);
+        crQ.where(builder.equal(root.get("shockID"), shockID));
+        Query q = session.createQuery(crQ);
+        shock = (Shock) q.getSingleResult();
+
+        return shock;
     }
 }

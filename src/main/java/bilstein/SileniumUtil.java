@@ -109,7 +109,7 @@ public class SileniumUtil {
         return getSelectByID(driver, "engineSelector-year");
     }
 
-    private static WebElement waitForElement(By by, WebDriver driver) {
+    public static WebElement waitForElement(By by, WebDriver driver) {
         int retries = 0;
         WebElement result = null;
         while (true){
@@ -349,7 +349,7 @@ public class SileniumUtil {
         return buttnElForCheck.size()>0;
     }
 
-    private static void sleepForTimeout(int ms){
+    public static void sleepForTimeout(int ms){
         try {
             Thread.sleep(ms);
         } catch (InterruptedException ignored) {
@@ -357,4 +357,47 @@ public class SileniumUtil {
     }
 
 
+    public static WebDriver getShockPage(WebDriver driver, String partNo) {
+        By searchFieldBy = By.id("partSearchBox");
+        WebElement searchFieldEl = waitForElement(searchFieldBy, driver);
+        searchFieldEl.sendKeys(partNo);
+
+        By searchBtnBy = By.id("prtNmbFindBtn");
+        WebElement searchBtn = waitForElementClickable(driver, searchBtnBy);
+        if (searchBtn!=null){
+            searchBtn.click();
+        }
+
+        By shockPageBy = By.id("productdetails");
+        sleepForTimeout(1000);
+        waitForElement(shockPageBy, driver);
+
+        return driver;
+    }
+
+    public static WebElement waitForElementClickable(WebDriver driver, By elementBy) {
+        WebElement searchBtnEl = null;
+        int counter = 0;
+        while(true){
+            try {
+                WebDriverWait wait = new WebDriverWait(driver, 10);
+                searchBtnEl = wait.until(ExpectedConditions.elementToBeClickable(elementBy));
+                break;
+            }
+            catch (TimeoutException e){
+                counter++;
+                if (counter>12){
+                    if (hasConnection()){
+                        logger.error("Element is not clickable");
+                        return null;
+                    }
+                    else {
+                        counter=0;
+                    }
+                }
+            }
+        }
+
+        return searchBtnEl;
+    }
 }
