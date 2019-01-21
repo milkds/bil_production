@@ -22,6 +22,8 @@ import java.util.List;
 
 public class TestClass {
 
+
+
     public static void testConnection(){
         for (int i = 0; i <5 ; i++) {
             System.out.println(SileniumUtil.hasConnection());

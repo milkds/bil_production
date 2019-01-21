@@ -10,6 +10,7 @@ public class Controller {
            // new ParseLauncher().launchPreParseFromPauseTillEnd(1945, "Alfa Romeo");
            // new ParseLauncher().launchPreParseFromPauseTillYear(2018, 2000, "Ford");
             new ParseLauncher().parseShockDetails();
+           // BilsteinDao.updShocks();
     }
 
 

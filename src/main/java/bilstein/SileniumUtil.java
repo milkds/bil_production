@@ -4,11 +4,8 @@ import bilstein.entities.preparse.AdditionalField;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -357,22 +354,48 @@ public class SileniumUtil {
     }
 
 
-    public static WebDriver getShockPage(WebDriver driver, String partNo) {
+    public static WebDriver getShockPage (WebDriver driver, String partNo) {
         By searchFieldBy = By.id("partSearchBox");
-        WebElement searchFieldEl = waitForElement(searchFieldBy, driver);
+        int attempts = 0;
+        WebElement searchFieldEl = null;
+        while (attempts<30){
+            searchFieldEl = waitForElement(searchFieldBy, driver);
+            attempts++;
+        }
+
+        searchFieldEl.sendKeys(Keys.CONTROL + "a");
+        searchFieldEl.sendKeys(Keys.DELETE);
         searchFieldEl.sendKeys(partNo);
 
         By searchBtnBy = By.id("prtNmbFindBtn");
         WebElement searchBtn = waitForElementClickable(driver, searchBtnBy);
         if (searchBtn!=null){
             searchBtn.click();
+            sleepForTimeout(2000);
         }
+
+        if (severalResults(driver)){
+            List<WebElement> shockEls = driver.findElements(By.cssSelector("div[class='row backBox']"));
+            for (WebElement shockEl: shockEls){
+                if (shockEl.getText().contains(partNo)){
+                    shockEl.click();
+                    break;
+                }
+            }
+        }
+
 
         By shockPageBy = By.id("productdetails");
         sleepForTimeout(1000);
         waitForElement(shockPageBy, driver);
 
         return driver;
+    }
+
+    private static boolean severalResults(WebDriver driver) {
+        List<WebElement> elements = driver.findElements(By.cssSelector("div[class='row backBox']"));
+
+        return elements.size()>1;
     }
 
     public static WebElement waitForElementClickable(WebDriver driver, By elementBy) {

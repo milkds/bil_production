@@ -78,6 +78,14 @@ public class ShockParser {
                 return result;
             }
             catch (StaleElementReferenceException ignored){
+                while (true){
+                    try {
+                        driver = SileniumUtil.getShockPage(driver, rawShock.getPartNo());
+                        break;
+                    }
+                    catch (StaleElementReferenceException e){
+                    }
+                }
             }
         }
     }

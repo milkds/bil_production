@@ -5,6 +5,7 @@ import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.parsers.ShockParser;
 import bilstein.parsers.YearParser;
+import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -83,6 +84,14 @@ public class ParseLauncher {
         List<Shock> shocks = BilsteinDao.getRawShocks();
         for (Shock shock: shocks){
             driver = SileniumUtil.getShockPage(driver, shock.getPartNo());
+            if (noShockFound(driver)){
+                shock.setDetailsParsed(true);
+                shock.setSpecs(new ArrayList<>());
+                shock.setDetails(new ArrayList<>());
+                shock.setpInfos(new ArrayList<>());
+                BilsteinDao.updateShock(shock);
+                continue;
+            }
             Shock detailedShock = null;
             while (true){
                 try {
@@ -96,5 +105,11 @@ public class ParseLauncher {
         }
         driver.close();
         HibernateUtil.shutdown();
+    }
+
+    private boolean noShockFound(WebDriver driver) {
+        List<WebElement> searchResultEls = driver.findElements(By.id("searchFeedback"));
+
+        return searchResultEls.size()==1;
     }
 }

@@ -204,6 +204,16 @@ public class BilsteinDao {
         shocks = q.getResultList();
 
         return shocks;
+    } public static List<Shock> getRawShocks2(Session session) {
+        List<Shock> shocks;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
+        Root<Shock> root = crQ.from(Shock.class);
+        //crQ.where(builder.equal(root.get("detailsParsed"), false));
+        Query q = session.createQuery(crQ);
+        shocks = q.getResultList();
+
+        return shocks;
     }
 
     public static void updateShock(Shock detailedShock) {
@@ -249,5 +259,28 @@ public class BilsteinDao {
         shock = (Shock) q.getSingleResult();
 
         return shock;
+    }
+
+    public static void updShocks(){
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            List<Shock> shocks = getRawShocks2(session);
+            for (Shock shock: shocks){
+                shock.setDetailsParsed(false);
+                session.update(shock);
+                logger.info("Updated shock # " + shock.getPartNo());
+            }
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+        HibernateUtil.shutdown();
     }
 }
