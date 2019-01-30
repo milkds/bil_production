@@ -202,6 +202,7 @@ public class SileniumUtil {
 
     public static boolean getCarPage(WebDriver driver, String url) {
         driver.get(url);
+        sleepForTimeout(1000);
         By by = By.id("ProductResults");
         WebElement prodResultElem = waitForElement(by,driver);
         by = By.className("searchFeedback");

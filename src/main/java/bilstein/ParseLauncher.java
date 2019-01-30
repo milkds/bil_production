@@ -81,7 +81,8 @@ public class ParseLauncher {
 
     public void parseShockDetails(){
         WebDriver driver = SileniumUtil.initBaseDriver();
-        List<Shock> shocks = BilsteinDao.getRawShocks();
+      //  List<Shock> shocks = BilsteinDao.getRawShocks();
+        List<Shock> shocks = BilsteinDao.getRawShocks3();
         for (Shock shock: shocks){
             driver = SileniumUtil.getShockPage(driver, shock.getPartNo());
             if (noShockFound(driver)){

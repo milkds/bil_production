@@ -19,6 +19,8 @@ import org.openqa.selenium.support.ui.Select;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TestClass {
 
@@ -283,5 +285,27 @@ public class TestClass {
         driver = SileniumUtil.getShockPage(driver, "24-188227");
         Shock detailedShock = new ShockParser(driver, new Shock()).parse();
         driver.close();
+    }
+
+    public static void getShocks(){
+        BilsteinDao.getRawShocks3();
+        HibernateUtil.shutdown();
+    }
+
+    public static void testMatcherReg(){
+        String guideStr = "12005-20101asas";
+       String regexp = "(\\d\\d\\d\\d-\\d\\d\\d\\d)";
+     //   String regexp = "2005";
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher matcher = pattern.matcher(guideStr);
+        if (matcher.find()){
+            System.out.println("found");
+            System.out.println(matcher.group());
+        }
+    }
+
+    public static void testBuyerGuide(){
+     //   AfterParseProcessor.processBuyersGuide();
+        AfterParseProcessor.setYearStartFinish();
     }
 }

@@ -17,8 +17,7 @@ public class ProductInfo {
     @Column (name = "INFO_VALUE")
     private String pValue;
 
-    @ManyToOne
-    @JoinColumn(name = "SHOCK_ID")
+   @Transient
     private Shock shock;
 
     @Override

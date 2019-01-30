@@ -45,6 +45,12 @@ public class Car {
     @Column(name = "TRANSMISSION")
     private String transmission;
 
+    @Column(name = "YEAR_START")
+    private Integer yearStart;
+
+    @Column(name = "YEAR_FINISH")
+    private Integer yearFinish;
+
     @Transient
     private Boolean hasShocks;
 
@@ -67,7 +73,6 @@ public class Car {
                 ", transmission='" + transmission + '\'' +
                 '}';
     }
-
 
     public Integer getCarID() {
         return carID;
@@ -152,5 +157,17 @@ public class Car {
     }
     public void setFitments(List<Fitment> fitments) {
         this.fitments = fitments;
+    }
+    public Integer getYearStart() {
+        return yearStart;
+    }
+    public void setYearStart(Integer yearStart) {
+        this.yearStart = yearStart;
+    }
+    public Integer getYearFinish() {
+        return yearFinish;
+    }
+    public void setYearFinish(Integer yearFinish) {
+        this.yearFinish = yearFinish;
     }
 }

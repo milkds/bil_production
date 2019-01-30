@@ -3,11 +3,12 @@ package bilstein.entities;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "bil_shocks")
-public class Shock {
+public class Shock implements Serializable {
 
     @Id
     @Column(name = "SH_ID")
@@ -99,13 +100,43 @@ public class Shock {
     @Column(name = "DOC_LINKS")
     private String docLinks;
 
+    @Column(name = "QTY_PER_VEHICLE")
+    private String qtyPerVehicle;
+
+    @Column(name = "WARRANTY")
+    private String warranty;
+
+    @Column(name = "FINISH")
+    private String finish;
+
+    @Column(name = "RESERVOIR")
+    private String reservoir;
+
+    @Column(name = "BODY_DESIGN")
+    private String bodyDesign;
+
+    @Column(name = "OPTIONAL_RES_CLAMP")
+    private String optResClamp;
+
+    @Column(name = "KIT_CONTENTS")
+    private String kitContents;
+
+    @Column(name = "OPTIONAL_HL_SPRINGS")
+    private String optHLSprings;
+
+    @Column(name = "ADJUSTABLE_DAMPING")
+    private String adjDamping;
+
+    @Column(name = "ITEM_TYPE_STEERING_RACKS")
+    private String itemTypeSteerRacks;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
     private List<Spec> specs;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
     private List<Detail> details;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shock")
+    @Transient
     private List<ProductInfo> pInfos;
 
     @Override
@@ -332,5 +363,65 @@ public class Shock {
     }
     public void setpInfos(List<ProductInfo> pInfos) {
         this.pInfos = pInfos;
+    }
+    public String getQtyPerVehicle() {
+        return qtyPerVehicle;
+    }
+    public void setQtyPerVehicle(String qtyPerVehicle) {
+        this.qtyPerVehicle = qtyPerVehicle;
+    }
+    public String getWarranty() {
+        return warranty;
+    }
+    public void setWarranty(String warranty) {
+        this.warranty = warranty;
+    }
+    public String getFinish() {
+        return finish;
+    }
+    public void setFinish(String finish) {
+        this.finish = finish;
+    }
+    public String getReservoir() {
+        return reservoir;
+    }
+    public void setReservoir(String reservoir) {
+        this.reservoir = reservoir;
+    }
+    public String getBodyDesign() {
+        return bodyDesign;
+    }
+    public void setBodyDesign(String bodyDesign) {
+        this.bodyDesign = bodyDesign;
+    }
+    public String getOptResClamp() {
+        return optResClamp;
+    }
+    public void setOptResClamp(String optResClamp) {
+        this.optResClamp = optResClamp;
+    }
+    public String getKitContents() {
+        return kitContents;
+    }
+    public void setKitContents(String kitContents) {
+        this.kitContents = kitContents;
+    }
+    public String getOptHLSprings() {
+        return optHLSprings;
+    }
+    public void setOptHLSprings(String optHLSprings) {
+        this.optHLSprings = optHLSprings;
+    }
+    public String getAdjDamping() {
+        return adjDamping;
+    }
+    public void setAdjDamping(String adjDamping) {
+        this.adjDamping = adjDamping;
+    }
+    public String getItemTypeSteerRacks() {
+        return itemTypeSteerRacks;
+    }
+    public void setItemTypeSteerRacks(String itemTypeSteerRacks) {
+        this.itemTypeSteerRacks = itemTypeSteerRacks;
     }
 }

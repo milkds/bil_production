@@ -3,21 +3,18 @@ package bilstein;
 import bilstein.entities.*;
 import bilstein.entities.preparse.Ym;
 import bilstein.entities.preparse.Ymm;
-import bilstein.entities.preparse.Ymms;
-import bilstein.parsers.CarParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.NonUniqueObjectException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.exception.ConstraintViolationException;
 
-import javax.persistence.PersistenceException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
+import java.util.*;
 
 public class BilsteinDao {
     private static final Logger logger = LogManager.getLogger(BilsteinDao.class.getName());
@@ -202,9 +199,30 @@ public class BilsteinDao {
         crQ.where(builder.equal(root.get("detailsParsed"), false));
         Query q = session.createQuery(crQ);
         shocks = q.getResultList();
+        session.close();
 
         return shocks;
-    } public static List<Shock> getRawShocks2(Session session) {
+    }
+
+    public static List<Shock> getAllShocks() {
+        Session session = HibernateUtil.getSession();
+        List<Shock> shocks;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
+        Root<Shock> root = crQ.from(Shock.class);
+        Query q = session.createQuery(crQ);
+        shocks = q.getResultList();
+        session.close();
+
+        return shocks;
+    }
+
+    /**
+     *
+     * @param session
+     * @return All Shocks
+     */
+    public static List<Shock> getRawShocks2(Session session) {
         List<Shock> shocks;
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
@@ -226,6 +244,7 @@ public class BilsteinDao {
             BilsteinUtil.fillAdditionalFields(shock, detailedShock);
             List<Spec> specs = shock.getSpecs();
             for (Spec spec: specs){
+                logger.info(spec);
                 session.persist(spec);
             }
             List<Detail> details = shock.getDetails();
@@ -282,5 +301,223 @@ public class BilsteinDao {
             }
         }
         HibernateUtil.shutdown();
+    }
+
+    /**
+     * This method needed for manual parse result reprocessing.
+     * @return Shocks with specs, for spec reparsing.
+     */
+    public static List<Shock> getRawShocks3() {
+        Session session = HibernateUtil.getSession();
+       // List<Shock> shocks = getRawShocks2(session);
+        List<Spec> specs = getSpecs(session);
+        session.close();
+        Map<Integer, Shock> shockMap = new HashMap<>();
+        for (Spec spec: specs){
+            if (spec.getSpecName().length()==0){
+                Shock shock = spec.getShock();
+                System.out.println(shock);
+                shockMap.put(shock.getShockID(), shock);
+            }
+        }
+        List<Shock> result = new ArrayList<>(shockMap.values());
+
+        return result;
+    }
+
+    private static List<Spec> getSpecs(Session session) {
+        List<Spec> specs;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Spec> crQ = builder.createQuery(Spec.class);
+        Root<Spec> root = crQ.from(Spec.class);
+       /*
+        //crQ.where(builder.equal(root.get("detailsParsed"), false));*/
+        Query q = session.createQuery(crQ);
+        specs = q.getResultList();
+
+        return specs;
+    }
+
+    public static List<Spec> getAllSpecs(){
+        Session session = HibernateUtil.getSession();
+        List<Spec> specs = getSpecs(session);
+        session.close();
+        
+        return specs;
+    }
+
+    public static void processSpecs() {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            List<Spec> specs = getSpecs(session);
+            for (Spec spec: specs){
+                Shock shock  = spec.getShock();
+                AfterParseProcessor.setSpecValue(shock, spec.getSpecName(), spec.getSpecValue());
+                session.update(shock);
+            }
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+    }
+
+    public static void processDetails() {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            List<Detail> details = getDetails(session);
+            for (Detail detail: details){
+                Shock shock  = detail.getShock();
+                AfterParseProcessor.setDetailValue(shock, detail.getDetailName(), detail.getDetailValue());
+                session.update(shock);
+            }
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+    }
+
+    private static List<Detail> getDetails(Session session) {
+        List<Detail> details;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Detail> crQ = builder.createQuery(Detail.class);
+        Root<Detail> root = crQ.from(Detail.class);
+        Query q = session.createQuery(crQ);
+        details = q.getResultList();
+
+        return details;
+    }
+
+    public static Set<String> getMakes() {
+        Session session = HibernateUtil.getSession();
+        List<String> makes = new ArrayList<>();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<String> crQ = builder.createQuery(String.class);
+        Root<Car> root = crQ.from(Car.class);
+        crQ.select(root.get("make")).distinct(true);
+        Query q = session.createQuery(crQ);
+        makes = q.getResultList();
+        session.close();
+        Set<String> makeSet = new HashSet<>(makes);
+
+        return makeSet;
+    }
+
+    public static Set<String> getModels(String currentMake) {
+        Session session = HibernateUtil.getSession();
+        List<String> models = new ArrayList<>();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<String> crQ = builder.createQuery(String.class);
+        Root<Car> root = crQ.from(Car.class);
+        crQ.where(builder.equal(root.get("make"),currentMake)).select(root.get("model")).distinct(true);
+        Query q = session.createQuery(crQ);
+        models = q.getResultList();
+        session.close();
+        Set<String> modelSet = new HashSet<>(models);
+
+        return modelSet;
+    }
+
+    public static void saveGuides(List<BuyersGuide> guides) {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            for (BuyersGuide bGuide: guides){
+                session.persist(bGuide);
+            }
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+    }
+
+    public static List<Car> getAllCars(Session session) {
+        List<Car> cars;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
+        Root<Car> root = crQ.from(Car.class);
+        Query q = session.createQuery(crQ);
+        cars = q.getResultList();
+
+        return cars;
+    }
+
+    public static BuyersGuide getBuyersGuideByShockAndCar(Shock shock, Car car, Session session) {
+        BuyersGuide guide;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<BuyersGuide> crQ = builder.createQuery(BuyersGuide.class);
+        Root<BuyersGuide> root = crQ.from(BuyersGuide.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("shock"), shock));
+        predicates.add(builder.equal(root.get("make"), car.getMake()));
+        predicates.add(builder.equal(root.get("model"), car.getModel()));
+        predicates.add(builder.greaterThanOrEqualTo(root.get("yearFinish"), car.getModelYear()));
+        predicates.add(builder.lessThanOrEqualTo(root.get("yearStart"), car.getModelYear()));
+        Predicate[] preds = predicates.toArray(new Predicate[0]);
+        crQ.where(builder.and(preds));
+        Query q = session.createQuery(crQ);
+        try {
+            guide = (BuyersGuide) q.getSingleResult();
+        }
+        catch (NoResultException e){
+            logger.error("NO Result for combo: ");
+            logger.info(car);
+            logger.info(shock);
+            HibernateUtil.shutdown();
+            System.exit(1);
+            return null;
+        }
+
+        return guide;
+    }
+
+    public static void updateCar(Car car, BuyersGuide bGuide, Session session) {
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            Car dbCar = session.get(Car.class, car.getCarID());
+            dbCar.setYearStart(bGuide.getYearStart());
+            dbCar.setYearFinish(bGuide.getYearFinish());
+            session.update(dbCar);
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+    }
+
+    public static List<Fitment> getFitmentsByCar(Car car, Session session) {
+        List<Fitment> fitments;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Fitment> crQ = builder.createQuery(Fitment.class);
+        Root<Fitment> root = crQ.from(Fitment.class);
+        crQ.where(builder.equal(root.get("car"), car));
+        Query q = session.createQuery(crQ);
+        fitments = q.getResultList();
+
+        return fitments;
     }
 }

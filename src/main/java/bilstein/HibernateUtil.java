@@ -45,6 +45,7 @@ public class HibernateUtil {
                 sources.addAnnotatedClass(Spec.class);
                 sources.addAnnotatedClass(Detail.class);
                 sources.addAnnotatedClass(ProductInfo.class);
+                sources.addAnnotatedClass(BuyersGuide.class);
 
                 Metadata metadata = sources.getMetadataBuilder().build();
 
