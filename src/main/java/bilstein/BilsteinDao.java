@@ -520,4 +520,40 @@ public class BilsteinDao {
 
         return fitments;
     }
+
+    public static void reworkDodge() {
+        Session session = HibernateUtil.getSession();
+
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            List<BuyersGuide> guides;
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<BuyersGuide> crQ = builder.createQuery(BuyersGuide.class);
+            Root<BuyersGuide> root = crQ.from(BuyersGuide.class);
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(builder.equal(root.get("make"), "Dodge"));
+            predicates.add(builder.like(root.get("model"), "%Ram%"));
+            predicates.add(builder.greaterThan(root.get("yearStart"), "2010"));
+            Predicate[] preds = predicates.toArray(new Predicate[0]);
+            crQ.where(builder.and(preds));
+            Query q = session.createQuery(crQ);
+            guides = q.getResultList();
+            guides.forEach(guide->{
+                String model = guide.getModel();
+                model = model.replace("Ram ", "");
+                guide.setMake("Ram");
+                guide.setModel(model);
+                session.update(guide);
+            });
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+
+    }
 }

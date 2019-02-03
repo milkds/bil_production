@@ -78,8 +78,10 @@ public class AfterParseProcessor {
                 BilsteinDao.saveGuides(guides);
             }
         });
+        BilsteinDao.reworkDodge();
         HibernateUtil.shutdown();
     }
+
 
     private static List<BuyersGuide> getGuides(String bGuideStr, Set<String> makes, Shock shock) {
      //   System.out.println(bGuideStr + "------" + shock.getPartNo());
