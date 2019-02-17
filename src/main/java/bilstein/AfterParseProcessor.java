@@ -88,16 +88,21 @@ public class AfterParseProcessor {
         List<BuyersGuide> result = new ArrayList<>();
         String[] split = bGuideStr.split(",");
         String currentMake = getCurrentMake(split[0], makes);
+        //Dodge
         Set<String>currentModels = BilsteinDao.getModels(currentMake);
         for (String guideStr: split){
             guideStr = guideStr.trim();
             String yearStr = getYearStr(guideStr);
             String modelStr = guideStr.replace(yearStr, "");
+
             if (modelStr.startsWith(currentMake)){
                 modelStr = modelStr.replace(currentMake,"");
             }
             modelStr = modelStr.trim();
             BuyersGuide bGuide = null;
+            //https://cart.bilsteinus.com/details?id=4384947449518677067
+            //here we get modelStr 3500 - but there is no such model for Dodge. So it tries to get new make
+            //which equals 3500. It can't get it, so returns zero make.
             if (!currentModels.contains(modelStr)){
                 currentMake = getCurrentMake(guideStr, makes);
                 currentModels = BilsteinDao.getModels(currentMake);
