@@ -598,4 +598,12 @@ public class BilsteinDao {
         }
         HibernateUtil.shutdown();
     }
+
+    public static void postProcess() {
+        BilsteinPostProcessDao.processJeepCJ5();
+    }
+
+    public static void postProcessCars() {
+        BilsteinPostProcessDao.processJeepCJ5InCarList();
+    }
 }

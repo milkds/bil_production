@@ -65,6 +65,7 @@ public class AfterParseProcessor {
             }
         });
         session.close();
+        BilsteinDao.postProcessCars();
         HibernateUtil.shutdown();
     }
 
@@ -78,7 +79,8 @@ public class AfterParseProcessor {
                 BilsteinDao.saveGuides(guides);
             }
         });
-        BilsteinDao.reworkDodge();
+      //  BilsteinDao.reworkDodge();
+        BilsteinDao.postProcess();
         HibernateUtil.shutdown();
     }
 
@@ -98,6 +100,17 @@ public class AfterParseProcessor {
             if (modelStr.startsWith(currentMake)){
                 modelStr = modelStr.replace(currentMake,"");
             }
+            else {
+                //this is for exceptional case when up to 2010 Ram was model of Dodge, and from 2011 became a make.
+                if (currentMake.equals("Dodge")){
+                    if (modelStr.startsWith("Ram")){
+                        if(itsRam(yearStr)){
+                            currentMake = "Ram";
+                            modelStr = modelStr.replace(currentMake,"");
+                        }
+                    }
+                }
+            }
             modelStr = modelStr.trim();
             BuyersGuide bGuide = null;
             //https://cart.bilsteinus.com/details?id=4384947449518677067
@@ -114,7 +127,48 @@ public class AfterParseProcessor {
             result.add(bGuide);
         }
 
+       result = removeDupes(result);
+
         return result;
+    }
+
+    private static List<BuyersGuide> removeDupes(List<BuyersGuide> rawGuides) {
+        List<BuyersGuide> uniqueGuides = new ArrayList<>();
+        List<BuyersGuide> dupeGuides = new ArrayList<>();
+        for (BuyersGuide rawGuide: rawGuides){
+            for (BuyersGuide uniqueGuide: uniqueGuides){
+                if (guidesEqual(rawGuide, uniqueGuide)){
+                    dupeGuides.add(rawGuide);
+                }
+            }
+            uniqueGuides.add(rawGuide);
+        }
+        dupeGuides.forEach(uniqueGuides::remove);
+
+        return uniqueGuides;
+    }
+
+    private static boolean guidesEqual(BuyersGuide guide, BuyersGuide anotherGuide) {
+        return guide.getMake().equals(anotherGuide.getMake()) &&
+                guide.getModel().equals(anotherGuide.getModel()) &&
+                guide.getYearStart().equals(anotherGuide.getYearStart()) &&
+                guide.getYearFinish().equals(anotherGuide.getYearFinish());
+
+
+    }
+
+    private static boolean itsRam(String yearStr) {
+        int strLength = yearStr.length();
+        String yearStartStr = yearStr.substring(strLength-4);
+        int yearStart;
+        try {
+            yearStart = Integer.parseInt(yearStartStr);
+        }
+        catch (NumberFormatException e){
+            return false;
+        }
+        return yearStart > 2010;
+
     }
 
     private static BuyersGuide getBuyersGuide(String currentMake, String modelStr, String yearStr, Shock shock) {
