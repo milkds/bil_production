@@ -30,7 +30,14 @@ public class MakeParser extends YearParser {
 
     public int parseMake() throws NoSelectOptionAvailableException {
         Instant start = Instant.now();
-        List<WebElement> modelEls = SileniumUtil.getModelEls(getDriver(), getYear(), make);
+        List<WebElement> modelEls = new ArrayList<>();
+        try{
+            modelEls = SileniumUtil.getModelEls(getDriver(), getYear(), make);
+        }
+        catch (Exception e){
+            logger.error("couldn't get model list for combo: " + getYear() + " " + make);
+            throw new NoSelectOptionAvailableException();
+        }
         int startID = 1;
         List<PrepInfoKeeper> carsToParse = new ArrayList<>();
         Map<String, String> modelMap = SileniumUtil.getElementMap(modelEls.subList(startID, modelEls.size()));

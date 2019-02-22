@@ -5,6 +5,7 @@ import bilstein.entities.preparse.Ym;
 import bilstein.entities.preparse.Ymm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -227,7 +228,7 @@ public class BilsteinDao {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Shock> crQ = builder.createQuery(Shock.class);
         Root<Shock> root = crQ.from(Shock.class);
-        //crQ.where(builder.equal(root.get("detailsParsed"), false));
+        crQ.where(builder.equal(root.get("detailsParsed"), false));
         Query q = session.createQuery(crQ);
         shocks = q.getResultList();
 
@@ -309,7 +310,7 @@ public class BilsteinDao {
      */
     public static List<Shock> getRawShocks3() {
         Session session = HibernateUtil.getSession();
-       // List<Shock> shocks = getRawShocks2(session);
+        // List<Shock> shocks = getRawShocks2(session);
         List<Spec> specs = getSpecs(session);
         session.close();
         Map<Integer, Shock> shockMap = new HashMap<>();
@@ -336,6 +337,14 @@ public class BilsteinDao {
         specs = q.getResultList();
 
         return specs;
+    }
+
+    public static List<Shock> getRawShocks4() {
+        Session session = HibernateUtil.getSession();
+        List<Shock> shocks = getRawShocks2(session);
+        session.close();
+
+        return shocks;
     }
 
     public static List<Spec> getAllSpecs(){
@@ -452,13 +461,38 @@ public class BilsteinDao {
 
     public static List<Car> getAllCars(Session session) {
         List<Car> cars;
+        List<Integer> carIDwithFits = getCarsWithFits(session);
+        Set<Integer> idSet = new HashSet<>(carIDwithFits);
+        logger.info("got car ids");
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
         Root<Car> root = crQ.from(Car.class);
+        crQ.where(builder.isNull(root.get("yearStart")));
         Query q = session.createQuery(crQ);
         cars = q.getResultList();
+        List<Car> carsWithFits = new ArrayList<>();
+        cars.forEach(car -> {
+            if (idSet.contains(car.getCarID())){
+                carsWithFits.add(car);
+            }
+        });
+        logger.info("got Cars");
 
-        return cars;
+        return carsWithFits;
+    }
+
+    private static List<Integer> getCarsWithFits(Session session) {
+        List<Integer> ids = new ArrayList<>();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Integer> crQ = builder.createQuery(Integer.class);
+        Root<Fitment> root = crQ.from(Fitment.class);
+        crQ.select(root.get("car")).distinct(true);
+        Query q = session.createQuery(crQ);
+        List<Car> cars = q.getResultList();
+        cars.forEach(car -> {
+            ids.add(car.getCarID());
+        });
+        return ids;
     }
 
     public static BuyersGuide getBuyersGuideByShockAndCar(Shock shock, Car car, Session session) {
@@ -481,6 +515,14 @@ public class BilsteinDao {
         }
         catch (NoResultException e){
             logger.error("NO Result for combo: ");
+            logger.info(car);
+            logger.info(shock);
+            HibernateUtil.shutdown();
+            System.exit(1);
+            return null;
+        }
+        catch (NonUniqueResultException e1){
+            logger.error("duped Buyers Guide ");
             logger.info(car);
             logger.info(shock);
             HibernateUtil.shutdown();
@@ -554,6 +596,6 @@ public class BilsteinDao {
                 transaction.rollback();
             }
         }
-
+        HibernateUtil.shutdown();
     }
 }

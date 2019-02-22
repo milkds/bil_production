@@ -361,12 +361,28 @@ public class SileniumUtil {
         WebElement searchFieldEl = null;
         while (attempts<30){
             searchFieldEl = waitForElement(searchFieldBy, driver);
+            try{
+                searchFieldEl.sendKeys(Keys.CONTROL + "a");
+            }
+            catch (StaleElementReferenceException e){
+                searchFieldEl = waitForElement(searchFieldBy, driver);
+                break;
+            }
             attempts++;
         }
 
-        searchFieldEl.sendKeys(Keys.CONTROL + "a");
-        searchFieldEl.sendKeys(Keys.DELETE);
-        searchFieldEl.sendKeys(partNo);
+        try{
+            searchFieldEl.sendKeys(Keys.CONTROL + "a");
+            searchFieldEl.sendKeys(Keys.DELETE);
+            searchFieldEl.sendKeys(partNo);
+        }
+        catch (StaleElementReferenceException e){
+            searchFieldEl = waitForElement(searchFieldBy, driver);
+            searchFieldEl.sendKeys(Keys.CONTROL + "a");
+            searchFieldEl.sendKeys(Keys.DELETE);
+            searchFieldEl.sendKeys(partNo);
+        }
+
 
         By searchBtnBy = By.id("prtNmbFindBtn");
         WebElement searchBtn = waitForElementClickable(driver, searchBtnBy);
