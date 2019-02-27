@@ -9,16 +9,21 @@ public class Controller {
            // new ParseLauncher().launchPreParseForYears(2019, 1900);
            // new ParseLauncher().launchPreParseFromPauseTillEnd(2011, "Freightliner");
            // new ParseLauncher().launchPreParseFromPauseTillYear(2018, 2000, "Ford");
-            new ParseLauncher().parseShockDetails();
+          //  new ParseLauncher().parseShockDetails();
 
       //  ConsistencyChecker.check(2019, 1901);
 
 
-     //   AfterParseProcessor.processParsedInfo();
+      //  AfterParseProcessor.processParsedInfo();
+      //  AfterParseProcessor.processBuyersGuide();
+
      //   AfterParseProcessor.setYearStartFinish();
 
       //  TestClass.testBuyerGuide();
       //  BilsteinDao.reworkDodge();
+
+        BilsteinPostProcessDao.processJeepCJ5InCarList();
+        HibernateUtil.shutdown();
     }
 
 

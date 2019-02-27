@@ -79,7 +79,12 @@ public class BilsteinPostProcessDao {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
         Root<Car> root = crQ.from(Car.class);
-        crQ.where(builder.greaterThan(root.get("modelYear"),1975));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("make"), "Jeep"));
+        predicates.add(builder.equal(root.get("model"), "CJ5"));
+        predicates.add(builder.greaterThan(root.get("modelYear"), "1975"));
+        Predicate[] preds = predicates.toArray(new Predicate[0]);
+        crQ.where(builder.and(preds));
         Query q = session.createQuery(crQ);
         cars = q.getResultList();
 
@@ -91,7 +96,12 @@ public class BilsteinPostProcessDao {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
         Root<Car> root = crQ.from(Car.class);
-        crQ.where(builder.lessThan(root.get("modelYear"),1976));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("make"), "Jeep"));
+        predicates.add(builder.equal(root.get("model"), "CJ5"));
+        predicates.add(builder.lessThan(root.get("modelYear"), "1976"));
+        Predicate[] preds = predicates.toArray(new Predicate[0]);
+        crQ.where(builder.and(preds));
         Query q = session.createQuery(crQ);
         cars = q.getResultList();
 

@@ -245,7 +245,7 @@ public class BilsteinDao {
             BilsteinUtil.fillAdditionalFields(shock, detailedShock);
             List<Spec> specs = shock.getSpecs();
             for (Spec spec: specs){
-                logger.info(spec);
+//                logger.info(spec);
                 session.persist(spec);
             }
             List<Detail> details = shock.getDetails();
@@ -467,7 +467,7 @@ public class BilsteinDao {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
         Root<Car> root = crQ.from(Car.class);
-        crQ.where(builder.isNull(root.get("yearStart")));
+        crQ.where(builder.equal(root.get("yearStart"), 0));
         Query q = session.createQuery(crQ);
         cars = q.getResultList();
         List<Car> carsWithFits = new ArrayList<>();
