@@ -2,6 +2,8 @@ package bilstein;
 
 import bilstein.entities.BuyersGuide;
 import bilstein.entities.Car;
+import bilstein.entities.FinalCar;
+import bilstein.entities.FinalFitment;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -106,5 +108,55 @@ public class BilsteinPostProcessDao {
         cars = q.getResultList();
 
         return cars;
+    }
+
+    public static List<Car> getEqualCars(Session session, Car car) {
+        List<Car> cars = new ArrayList<>();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
+        Root<Car> root = crQ.from(Car.class);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("make"), car.getMake()));
+        predicates.add(builder.equal(root.get("model"), car.getModel()));
+        predicates.add(builder.lessThan(root.get("subModel"), car.getSubModel()));
+        predicates.add(builder.lessThan(root.get("body"), car.getBody()));
+        predicates.add(builder.lessThan(root.get("bodyMan"), car.getBodyMan()));
+        predicates.add(builder.lessThan(root.get("drive"), car.getDrive()));
+        predicates.add(builder.lessThan(root.get("doors"), car.getDoors()));
+        predicates.add(builder.lessThan(root.get("engine"), car.getEngine()));
+        predicates.add(builder.lessThan(root.get("suspension"), car.getSuspension()));
+        predicates.add(builder.lessThan(root.get("transmission"), car.getTransmission()));
+        predicates.add(builder.lessThan(root.get("yearStart"), car.getYearStart()));
+        predicates.add(builder.lessThan(root.get("yearFinish"), car.getYearFinish()));
+        Predicate[] preds = predicates.toArray(new Predicate[0]);
+        crQ.where(builder.and(preds));
+        Query q = session.createQuery(crQ);
+        cars = q.getResultList();
+
+        return cars;
+    }
+
+    public static void saveFinalCar(FinalCar finalCar) {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.getTransaction();
+            transaction.begin();
+            session.persist(finalCar);
+            List<FinalFitment> fits = finalCar.getFitments();
+            if (fits!=null){
+                fits.forEach(fit->{
+                    fit.setCar(finalCar);
+                    session.persist(fit);
+                });
+            }
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
     }
 }

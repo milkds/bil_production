@@ -459,9 +459,9 @@ public class BilsteinDao {
         }
     }
 
-    public static List<Car> getAllCars(Session session) {
+    public static List<Car> getAllCarsWithFits(Session session) {
         List<Car> cars;
-        List<Integer> carIDwithFits = getCarsWithFits(session);
+        List<Integer> carIDwithFits = getCarsIDsWithFits(session);
         Set<Integer> idSet = new HashSet<>(carIDwithFits);
         logger.info("got car ids");
         CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -481,7 +481,7 @@ public class BilsteinDao {
         return carsWithFits;
     }
 
-    private static List<Integer> getCarsWithFits(Session session) {
+    private static List<Integer> getCarsIDsWithFits(Session session) {
         List<Integer> ids = new ArrayList<>();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Integer> crQ = builder.createQuery(Integer.class);
@@ -605,5 +605,17 @@ public class BilsteinDao {
 
     public static void postProcessCars() {
         BilsteinPostProcessDao.processJeepCJ5InCarList();
+    }
+
+    public static List<Car> getAllCars() {
+        Session session = HibernateUtil.getSession();
+        List<Car> cars;
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
+        Root<Car> root = crQ.from(Car.class);
+        Query q = session.createQuery(crQ);
+        cars = q.getResultList();
+
+        return cars;
     }
 }

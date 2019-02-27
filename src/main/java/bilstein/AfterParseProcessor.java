@@ -1,9 +1,6 @@
 package bilstein;
 
-import bilstein.entities.BuyersGuide;
-import bilstein.entities.Car;
-import bilstein.entities.Fitment;
-import bilstein.entities.Shock;
+import bilstein.entities.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -17,6 +14,52 @@ import java.util.regex.Pattern;
 public class AfterParseProcessor {
 
     private static final Logger logger = LogManager.getLogger(AfterParseProcessor.class.getName());
+
+
+    public static void joinEqualCars(){
+        Session session = HibernateUtil.getSession();
+        List<Car> allCars = BilsteinDao.getAllCars();
+        List<Car> allCarsWithFits = BilsteinDao.getAllCarsWithFits(session);
+        List<Car> checkedCars = new ArrayList<>();
+        int size = allCarsWithFits.size();
+        int counter = 0;
+        for (Car fitCar: allCarsWithFits){
+            counter++;
+            if (!checkedCars.contains(fitCar)){
+                List<Car> equalCars = BilsteinPostProcessDao.getEqualCars(session, fitCar);
+                FinalCar finalCar = new FinalCar(fitCar);
+                List<FinalFitment> finalFits = getFinalFits(fitCar);
+                finalCar.setFitments(finalFits);
+                BilsteinPostProcessDao.saveFinalCar(finalCar);
+                checkedCars.addAll(equalCars);
+            }
+            logger.info("processed car with fits " + counter+ " of total " + size);
+        }
+        allCars.removeAll(checkedCars);
+        checkedCars = new ArrayList<>();
+         size = allCars.size();
+         counter = 0;
+        for (Car noFitCar: allCars){
+            counter++;
+            if (!checkedCars.contains(noFitCar)){
+                List<Car> equalCars = BilsteinPostProcessDao.getEqualCars(session, noFitCar);
+                FinalCar finalCar = new FinalCar(noFitCar);
+                BilsteinPostProcessDao.saveFinalCar(finalCar);
+                checkedCars.addAll(equalCars);
+            }
+            logger.info("processed car with fits " + counter+ " of total " + size);
+        }
+        session.close();
+    }
+
+    private static List<FinalFitment> getFinalFits(Car fitCar) {
+        List<FinalFitment> result = new ArrayList<>();
+        List<Fitment> fits = fitCar.getFitments();
+        fits.forEach(fitment -> {
+            result.add(new FinalFitment(fitment));
+        });
+        return result;
+    }
 
     public static void processParsedInfo(){
         BilsteinDao.processSpecs();
@@ -50,7 +93,7 @@ public class AfterParseProcessor {
 
     public static void setYearStartFinish(){
         Session session = HibernateUtil.getSession();
-        List<Car> cars = BilsteinDao.getAllCars(session);
+        List<Car> cars = BilsteinDao.getAllCarsWithFits(session);
         cars.forEach(car -> {
           //  List<Fitment> fitments = car.getFitments();
             List<Fitment> fitments = BilsteinDao.getFitmentsByCar(car, session);
@@ -83,7 +126,6 @@ public class AfterParseProcessor {
         BilsteinDao.postProcess();
         HibernateUtil.shutdown();
     }
-
 
     private static List<BuyersGuide> getGuides(String bGuideStr, Set<String> makes, Shock shock) {
      //   System.out.println(bGuideStr + "------" + shock.getPartNo());

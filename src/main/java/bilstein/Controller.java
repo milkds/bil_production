@@ -22,7 +22,8 @@ public class Controller {
       //  TestClass.testBuyerGuide();
       //  BilsteinDao.reworkDodge();
 
-        BilsteinPostProcessDao.processJeepCJ5InCarList();
+        //BilsteinPostProcessDao.processJeepCJ5InCarList();
+        AfterParseProcessor.joinEqualCars();
         HibernateUtil.shutdown();
     }
 

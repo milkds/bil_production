@@ -3,9 +3,8 @@ package bilstein.entities;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "bil_fitments")
-public class Fitment {
-
+@Table(name = "bil_fitments_final")
+public class FinalFitment {
     @Id
     @Column(name = "FITMENT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,7 +12,7 @@ public class Fitment {
 
     @ManyToOne
     @JoinColumn(name = "CAR_ID")
-    private Car car;
+    private FinalCar car;
 
     @Column(name = "POSITION")
     private String position;
@@ -24,6 +23,14 @@ public class Fitment {
     @ManyToOne
     @JoinColumn(name = "SHOCK_PART", referencedColumnName = "PART_NO")
     private Shock shock;
+
+    public FinalFitment(Fitment fitment) {
+        this.position = fitment.getPosition();
+        this.notes = fitment.getNotes();
+        this.shock = fitment.getShock();
+    }
+    public FinalFitment() {
+    }
 
     @Override
     public String toString() {
@@ -60,10 +67,10 @@ public class Fitment {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    public Car getCar() {
+    public FinalCar getCar() {
         return car;
     }
-    public void setCar(Car car) {
+    public void setCar(FinalCar car) {
         this.car = car;
     }
 }
