@@ -467,7 +467,7 @@ public class BilsteinDao {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Car> crQ = builder.createQuery(Car.class);
         Root<Car> root = crQ.from(Car.class);
-        crQ.where(builder.equal(root.get("yearStart"), 0));
+     //   crQ.where(builder.equal(root.get("yearStart"), 0));
         Query q = session.createQuery(crQ);
         cars = q.getResultList();
         List<Car> carsWithFits = new ArrayList<>();

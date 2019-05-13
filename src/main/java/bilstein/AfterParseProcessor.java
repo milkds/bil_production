@@ -28,7 +28,7 @@ public class AfterParseProcessor {
             if (!checkedCars.contains(fitCar)){
                 List<Car> equalCars = BilsteinPostProcessDao.getEqualCars(session, fitCar);
                 FinalCar finalCar = new FinalCar(fitCar);
-                List<FinalFitment> finalFits = getFinalFits(fitCar);
+                List<FinalFitment> finalFits = getFinalFits(fitCar, session);
                 finalCar.setFitments(finalFits);
                 BilsteinPostProcessDao.saveFinalCar(finalCar);
                 checkedCars.addAll(equalCars);
@@ -47,17 +47,16 @@ public class AfterParseProcessor {
                 BilsteinPostProcessDao.saveFinalCar(finalCar);
                 checkedCars.addAll(equalCars);
             }
-            logger.info("processed car with fits " + counter+ " of total " + size);
+            logger.info("processed car without" +
+                    " fits " + counter+ " of total " + size);
         }
         session.close();
     }
 
-    private static List<FinalFitment> getFinalFits(Car fitCar) {
+    private static List<FinalFitment> getFinalFits(Car fitCar, Session session) {
         List<FinalFitment> result = new ArrayList<>();
-        List<Fitment> fits = fitCar.getFitments();
-        fits.forEach(fitment -> {
-            result.add(new FinalFitment(fitment));
-        });
+        List<Fitment> fits = BilsteinDao.getFitmentsByCar(fitCar, session);
+        fits.forEach(fitment -> result.add(new FinalFitment(fitment)));
         return result;
     }
 
