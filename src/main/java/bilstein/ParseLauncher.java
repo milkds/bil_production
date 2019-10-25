@@ -5,6 +5,8 @@ import bilstein.entities.StartPoint;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.parsers.ShockParser;
 import bilstein.parsers.YearParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -13,6 +15,8 @@ import org.openqa.selenium.WebElement;
 import java.util.*;
 
 public class ParseLauncher {
+    private static final Logger logger = LogManager.getLogger(ParseLauncher.class.getName());
+
 
     /**
      * Launches PreParse from the beginning.
@@ -85,7 +89,9 @@ public class ParseLauncher {
         List<Shock> shocks = BilsteinDao.getRawShocks4();
         for (Shock shock: shocks){
             driver = SileniumUtil.getShockPage(driver, shock.getPartNo());
+            logger.debug("checking " + driver.getCurrentUrl());
             if (noShockFound(driver)){
+                logger.debug("No shock found");
                 shock.setDetailsParsed(true);
                 shock.setSpecs(new ArrayList<>());
                 shock.setDetails(new ArrayList<>());
@@ -93,6 +99,7 @@ public class ParseLauncher {
                 BilsteinDao.updateShock(shock);
                 continue;
             }
+            logger.debug("shock found");
             Shock detailedShock = null;
             while (true){
                 try {

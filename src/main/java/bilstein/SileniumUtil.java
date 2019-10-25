@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -29,7 +30,9 @@ public class SileniumUtil {
      */
     public static WebDriver initBaseDriver() {
         System.setProperty("webdriver.chrome.driver", "src\\main\\resources\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(options);
         driver.get(BILSTEIN_URL);
         By by = By.id("engineSelector-year");
         WebElement yearEl = waitForElement(by, driver);
@@ -392,10 +395,17 @@ public class SileniumUtil {
         }
 
         if (severalResults(driver)){
-            List<WebElement> shockEls = driver.findElements(By.cssSelector("div[class='row backBox']"));
+            WebElement blockEl = SileniumUtil.waitForElement(By.id("recommendation"), driver);
+            if (blockEl==null){
+                logger.error("no recommendation box at " + driver.getCurrentUrl());
+                System.exit(1);
+            }
+            List<WebElement> shockEls = blockEl.findElements(By.cssSelector("div[class='row backBox']"));
             for (WebElement shockEl: shockEls){
+                logger.debug(shockEl.getText());
                 if (shockEl.getText().contains(partNo)){
                     shockEl.click();
+                    logger.debug(" shock link clicked");
                     break;
                 }
             }
@@ -406,13 +416,41 @@ public class SileniumUtil {
         sleepForTimeout(1000);
         waitForElement(shockPageBy, driver);
 
+        //checkIfSingleSearchResult(driver, partNo);
+
         return driver;
     }
 
-    private static boolean severalResults(WebDriver driver) {
-        List<WebElement> elements = driver.findElements(By.cssSelector("div[class='row backBox']"));
+    private static void checkIfSingleSearchResult(WebDriver driver, String partNo) {
+        if (driver.getCurrentUrl().contains("details")){
+            return;
+        }
+        By partBy = By.id("recommendation");
+        WebElement searchResultBlock = waitForElement(partBy, driver);
+        if (searchResultBlock==null){
+            logger.error("no search result block at " + driver.getCurrentUrl());
+            System.exit(1);
+        }
+        List<WebElement> searchResultsEl = searchResultBlock.findElements(By.cssSelector("div[class='row backBox']"));
+        if (searchResultsEl.size()==0){
+            logger.error("no search results in search block at " + driver.getCurrentUrl());
+            System.exit(1);
+        }
+        for (WebElement searchResult : searchResultsEl) {
+            if (searchResult.getText().contains(partNo)) {
+                WebElement linkEl = searchResult.findElement(By.tagName("a"));
+                linkEl.click();
+               break;
+            }
+        }
 
-        return elements.size()>1;
+
+
+    }
+
+    private static boolean severalResults(WebDriver driver) {
+        return driver.getCurrentUrl().contains("results");
+
     }
 
     public static WebElement waitForElementClickable(WebDriver driver, By elementBy) {
