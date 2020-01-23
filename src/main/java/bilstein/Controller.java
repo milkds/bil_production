@@ -14,18 +14,19 @@ public class Controller {
     public static void main(String[] args) throws NoSelectOptionAvailableException {
           //  new ParseLauncher().launchPreParse();
            // new ParseLauncher().launchPreParseForYears(2019, 1900);
-           // new ParseLauncher().launchPreParseFromPauseTillEnd(2011, "Freightliner");
+          //  new ParseLauncher().launchPreParseFromPauseTillEnd(1989, "Porsche");
            // new ParseLauncher().launchPreParseFromPauseTillYear(2018, 2000, "Ford");
-         //   new ParseLauncher().parseShockDetails();
+            //new ParseLauncher().parseShockDetails();
 
-      //  ConsistencyChecker.check(2020, 1901);
+        //ConsistencyChecker.check(2020, 1901);
+       // ConsistencyChecker.checkAndReparse(1974, 1968);
 
 
-      //  AfterParseProcessor.processParsedInfo();
-       // AfterParseProcessor.processBuyersGuide();
-        AfterParseProcessor.setYearStartFinish();
+        // AfterParseProcessor.processParsedInfo();
+      //   AfterParseProcessor.processBuyersGuide();
+       AfterParseProcessor.setYearStartFinish();
 
-      //  TestClass.testBuyerGuide();
+     //   TestClass.testSavePic();
 
 
 

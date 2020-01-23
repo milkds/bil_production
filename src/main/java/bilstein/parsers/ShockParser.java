@@ -53,6 +53,8 @@ public class ShockParser {
         rawShock.setpInfos(pInfos);
         rawShock.setDetailsParsed(true);
 
+        SileniumUtil.sleepForTimeout(1000); //experienced problems with wrong buyers guide, need check.
+
         return rawShock;
     }
 
@@ -71,7 +73,13 @@ public class ShockParser {
                         ProductInfo info = new ProductInfo();
                         info.setShock(rawShock);
                         info.setpName(prodEl.findElement(By.className("label")).getText());
-                        info.setpValue(prodEl.findElement(By.className("productProperty")).getText());
+                        try {
+                            info.setpValue(prodEl.findElement(By.className("productProperty")).getText());
+                        }
+                        catch (NoSuchElementException e){
+                            info.setpValue(info.getpName());
+                            info.setpName("Availability");
+                        }
                         result.add(info);
                     }
                 }

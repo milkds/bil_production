@@ -525,6 +525,7 @@ public class BilsteinDao {
             logger.error("duped Buyers Guide ");
             logger.info(car);
             logger.info(shock);
+            //for some reason some Mercedes Benz buyers guides are saved with null make.
             HibernateUtil.shutdown();
             System.exit(1);
             return null;

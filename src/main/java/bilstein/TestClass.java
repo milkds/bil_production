@@ -7,23 +7,121 @@ import bilstein.entities.Shock;
 import bilstein.entities.preparse.PrepInfoKeeper;
 import bilstein.entities.preparse.Ym;
 import bilstein.parsers.ShockParser;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TestClass {
 
+    public static void testSavePic(){
+        Set<String> picUrls = new HashSet<>();
+        Scanner s = null;
+        try {
+            s = new Scanner(new File("src\\main\\resources\\pics.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (s != null) {
+            while (s.hasNext()){
+                picUrls.add(s.next());
+            }
+            s.close();
+        }
+        Set<String>savedPics = new HashSet<>();
+        Scanner s1 = null;
+        String savedPicsBulk = "";
+        try {
+            s1 = new Scanner(new File("src\\main\\resources\\savedpics.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (s1 != null) {
+            while (s1.hasNext()){
+                savedPicsBulk = s1.next();
+            }
+            s1.close();
+        }
+        String[] split = savedPicsBulk.split("jpg");
+        for (String s2: split){
+            savedPics.add(s2+"jpg");
+        }
+        picUrls.removeAll(savedPics);
+        picUrls.remove("https://productdesk.cart.bilsteinus.com/media/products/bilstein/image_generic_02_1.jpg");
+
+        int total = picUrls.size();
+        int counter = 0;
+        for (String picUrl : picUrls) {
+            String fName = getFname(picUrl);
+            try {
+                savePic(picUrl, fName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            logPicSaved(picUrl);
+            counter++;
+            System.out.println("saved pic " + counter + " of total " + total);
+        }
+
+/*
+        try(InputStream in = new URL("https://productdesk.cart.bilsteinus.com/media/products/bilstein/48-177580_1.jpg").openStream()){
+            try {
+                Files.copy(in, Paths.get("C:/logs/image.jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    private static void logPicSaved(String picUrl) {
+        try
+        {
+            String filename= "src\\main\\resources\\savedpics.txt";
+            FileWriter fw = new FileWriter(filename,true); //the true will append the new data
+            fw.write(picUrl);//appends the string to the file
+            fw.close();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+    }
+
+    private static void savePic(String picUrl, String fName) throws IOException {
+        try(InputStream in = new URL(picUrl).openStream()){
+            try {
+                Files.copy(in, Paths.get(fName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String getFname(String picUrl) {
+        String pName = StringUtils.substringAfter(picUrl, "bilstein/");
+
+        return "C:/pics/"+pName;
+    }
 
 
     public static void testConnection(){

@@ -137,7 +137,6 @@ public class AfterParseProcessor {
             guideStr = guideStr.trim();
             String yearStr = getYearStr(guideStr);
             String modelStr = guideStr.replace(yearStr, "");
-
             if (modelStr.startsWith(currentMake)){
                 modelStr = modelStr.replace(currentMake,"");
             }
@@ -153,18 +152,26 @@ public class AfterParseProcessor {
                 }
             }
             modelStr = modelStr.trim();
+            if (modelStr.equals("GLE550")){
+                modelStr = "GLE550e";
+            }
             BuyersGuide bGuide = null;
             //https://cart.bilsteinus.com/details?id=4384947449518677067
             //here we get modelStr 3500 - but there is no such model for Dodge. So it tries to get new make
             //which equals 3500. It can't get it, so returns zero make.
             if (!currentModels.contains(modelStr)){
+
+                //for test purposes - will be removed later
+                if (currentMake.equals("Mercedes-Benz")){
+                        logger.error("No Model for Mercedes " + modelStr + " for shock " + shock.getPartNo());
+                }
+
                 currentMake = getCurrentMake(guideStr, makes);
                 currentModels = BilsteinDao.getModels(currentMake);
                 modelStr = modelStr.replace(currentMake, "");
                 modelStr = modelStr.trim();
             }
             bGuide = getBuyersGuide(currentMake, modelStr, yearStr, shock);
-            System.out.println(bGuide);
             result.add(bGuide);
         }
 
@@ -243,7 +250,7 @@ public class AfterParseProcessor {
         }
         else {
             int length = guideStr.length();
-            yearString = guideStr.substring(length-4,length);
+            yearString = guideStr.substring(length-4);
         }
 
         return yearString;
@@ -255,7 +262,7 @@ public class AfterParseProcessor {
                return make;
             }
         }
-
+        logger.error("Unknown make " + makeString);
         return "";
     }
 }

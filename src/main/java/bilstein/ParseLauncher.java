@@ -36,6 +36,7 @@ public class ParseLauncher {
         launchPreParse(startPoint, 0, yearFinish);
     }
 
+    //Make should not be parsed yet.
     public void launchPreParseFromPauseTillEnd(int yearStart, String make){
         StartPoint startPoint = BilsteinUtil.getStartPoint(yearStart, make);
         launchPreParse(startPoint, 0, 0);
